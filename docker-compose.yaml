@@ -1,0 +1,40 @@
+version: '3.8'
+services:
+  db:
+    image: postgres:16-alpine
+    restart: always
+    environment:
+      POSTGRES_USER: thearinazs
+      POSTGRES_PASSWORD: MonsterBoom_124701
+      POSTGRES_DB: nutritrack
+    ports:
+      - "5434:5432"
+    volumes:
+      - nutritrackdata:/var/lib/postgresql/data
+  rabbitmq:
+    image: rabbitmq:4-management
+    container_name: rabbitmq
+    restart: unless-stopped
+    ports:
+      - "5672:5672"
+      - "15672:15672"
+    environment:
+      RABBITMQ_DEFAULT_USER: admin
+      RABBITMQ_DEFAULT_PASS: secretpassword
+    volumes:
+      - rabbitmq_data:/var/lib/rabbitmq
+  minio:
+    image: minio/minio
+    ports:
+      - "9000:9000"
+      - "9001:9001"
+    environment:
+      MINIO_ROOT_USER: minio-nutritrack
+      MINIO_ROOT_PASSWORD: minionutritrackpassword
+    volumes:
+      - minio_nutritrack_data:/data
+    command: server /data --console-address ":9001"
+volumes:
+  nutritrackdata:
+  minio_nutritrack_data:
+  rabbitmq_data:
