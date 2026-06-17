@@ -11,6 +11,8 @@ services:
       - "5434:5432"
     volumes:
       - nutritrackdata:/var/lib/postgresql/data
+    networks:
+      - nutritrack-network
   rabbitmq:
     image: rabbitmq:4-management
     container_name: rabbitmq
@@ -23,6 +25,8 @@ services:
       RABBITMQ_DEFAULT_PASS: secretpassword
     volumes:
       - rabbitmq_data:/var/lib/rabbitmq
+    networks:
+      - nutritrack-network
   minio:
     image: minio/minio
     ports:
@@ -38,3 +42,7 @@ volumes:
   nutritrackdata:
   minio_nutritrack_data:
   rabbitmq_data:
+
+networks:
+  nutritrack-network:
+    driver: bridge
