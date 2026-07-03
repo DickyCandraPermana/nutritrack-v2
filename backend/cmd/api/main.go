@@ -13,46 +13,51 @@ import (
 	// Gunakan alias 'db' khusus untuk hasil generate sqlc
 	db "nutritrack.com/backend/internal/infrastructure/database/sqlc"
 
-	// Import feature
+	// Import app config, state, and feature
+	"nutritrack.com/backend/internal/app"
+	"nutritrack.com/backend/internal/config"
 	"nutritrack.com/backend/internal/features/scan"
 )
 
 func main() {
-	app := fiber.New(fiber.Config{
-		BodyLimit: 5 * 1024 * 1024,
-	})
+	// 1. Init Config
+	cfg := config.Load()
 
-	// 1. Eksekusi Koneksi Database
-	// Asumsi string koneksi sementara ditaruh statis (idealnya dari config)
-	dbPool := database.NewPostgresPool("postgres://user:pass@localhost:5432/nutritrack_db")
+	// 2. Eksekusi Koneksi Database
+	dbPool := database.NewPostgresPool(cfg.DBUrl)
 	defer dbPool.Close()
 
-	// 2. Eksekusi Koneksi Storage (MinIO)
-	minioClient := storage.NewMinioClient("localhost:9000", "minioadmin", "minioadmin", "nutritrack-images")
+	// 3. Eksekusi Koneksi Storage (MinIO)
+	minioClient := storage.NewMinioClient(cfg.MinioEndpoint, cfg.MinioAccessKey, cfg.MinioSecretKey, cfg.MinioBucket)
 
-	// 3. Eksekusi Koneksi Broker (RabbitMQ)
-	rabbitConn, rabbitCh := broker.NewRabbitMQConnection("amqp://guest:guest@localhost:5672/", "ocr_tasks")
+	// 4. Eksekusi Koneksi Broker (RabbitMQ)
+	rabbitConn, rabbitCh := broker.NewRabbitMQConnection(cfg.RabbitMQUrl, cfg.RabbitMQQueue)
 	defer rabbitConn.Close()
 	defer rabbitCh.Close()
 
-	// 4. Setup Dependencies (sqlc wrapper)
+	// 5. Setup Dependencies (sqlc wrapper)
 	queries := db.New(dbPool)
 
-	// 5. Dependency Injection untuk Fitur Scan
-	scanRepo := scan.NewRepository(queries)
-	scanPub := scan.NewPublisher(rabbitCh, "ocr_tasks")
+	// 6. Build App State
+	state := &app.State{
+		Config:   cfg,
+		Queries:  queries,
+		Minio:    minioClient,
+		RabbitMQ: rabbitCh,
+	}
 
-	// Masukkan repo, publisher, dan minio ke dalam service
-	scanSvc := scan.NewService(scanRepo, scanPub, minioClient, "nutritrack-images")
-	scanHdl := scan.NewHandler(scanSvc)
+	// 7. Setup Fiber & Routes
+	fiberApp := fiber.New(fiber.Config{
+		BodyLimit: 5 * 1024 * 1024,
+	})
+	api := fiberApp.Group("/api/v1")
 
-	// 6. Daftarkan Routes
-	api := app.Group("/api/v1")
-	api.Post("/scans", scanHdl.UploadLabel)
+	// 8. Mount Features
+	scan.SetupRoutes(api, state)
 
-	// 7. Jalankan Server
-	log.Println("🚀 Server berjalan di port 8080")
-	if err := app.Listen(":8080"); err != nil {
+	// 9. Jalankan Server
+	log.Printf("🚀 Server berjalan di port %s\n", cfg.Addr)
+	if err := fiberApp.Listen(cfg.Addr); err != nil {
 		log.Fatalf("Gagal menjalankan server: %v", err)
 	}
 }
