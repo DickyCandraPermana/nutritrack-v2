@@ -21,19 +21,19 @@ RETURNING id, username, email, role, created_at
 `
 
 type CreateUserParams struct {
-	Username     string
-	Email        string
-	PasswordHash string
-	Role         NullUserRole
-	CreatedBy    pgtype.UUID
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	PasswordHash string       `json:"password_hash"`
+	Role         NullUserRole `json:"role"`
+	CreatedBy    pgtype.UUID  `json:"created_by"`
 }
 
 type CreateUserRow struct {
-	ID        pgtype.UUID
-	Username  string
-	Email     string
-	Role      NullUserRole
-	CreatedAt pgtype.Timestamptz
+	ID        pgtype.UUID        `json:"id"`
+	Username  string             `json:"username"`
+	Email     string             `json:"email"`
+	Role      NullUserRole       `json:"role"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 func (q *Queries) CreateUser(ctx context.Context, arg CreateUserParams) (CreateUserRow, error) {
@@ -62,8 +62,8 @@ WHERE id = $1
 `
 
 type DeleteUserParams struct {
-	ID        pgtype.UUID
-	DeletedBy pgtype.UUID
+	ID        pgtype.UUID `json:"id"`
+	DeletedBy pgtype.UUID `json:"deleted_by"`
 }
 
 func (q *Queries) DeleteUser(ctx context.Context, arg DeleteUserParams) error {
@@ -78,11 +78,11 @@ WHERE email = $1 AND deleted_at IS NULL
 `
 
 type GetUserByEmailRow struct {
-	ID           pgtype.UUID
-	Username     string
-	Email        string
-	PasswordHash string
-	Role         NullUserRole
+	ID           pgtype.UUID  `json:"id"`
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	PasswordHash string       `json:"password_hash"`
+	Role         NullUserRole `json:"role"`
 }
 
 func (q *Queries) GetUserByEmail(ctx context.Context, email string) (GetUserByEmailRow, error) {
@@ -106,9 +106,9 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 type GetUserByIdRow struct {
-	Username string
-	Email    string
-	Role     NullUserRole
+	Username string       `json:"username"`
+	Email    string       `json:"email"`
+	Role     NullUserRole `json:"role"`
 }
 
 func (q *Queries) GetUserById(ctx context.Context, id pgtype.UUID) (GetUserByIdRow, error) {
@@ -125,11 +125,11 @@ WHERE username = $1 AND deleted_at IS NULL
 `
 
 type GetUserByUsernameRow struct {
-	ID           pgtype.UUID
-	Username     string
-	Email        string
-	PasswordHash string
-	Role         NullUserRole
+	ID           pgtype.UUID  `json:"id"`
+	Username     string       `json:"username"`
+	Email        string       `json:"email"`
+	PasswordHash string       `json:"password_hash"`
+	Role         NullUserRole `json:"role"`
 }
 
 func (q *Queries) GetUserByUsername(ctx context.Context, username string) (GetUserByUsernameRow, error) {
@@ -153,9 +153,9 @@ WHERE deleted_at IS NULL
 `
 
 type GetUsersRow struct {
-	Username string
-	Email    string
-	Role     NullUserRole
+	Username string       `json:"username"`
+	Email    string       `json:"email"`
+	Role     NullUserRole `json:"role"`
 }
 
 func (q *Queries) GetUsers(ctx context.Context) ([]GetUsersRow, error) {
@@ -185,11 +185,11 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 type UpdateUserParams struct {
-	ID        pgtype.UUID
-	Username  string
-	Email     string
-	Role      NullUserRole
-	UpdatedBy pgtype.UUID
+	ID        pgtype.UUID  `json:"id"`
+	Username  string       `json:"username"`
+	Email     string       `json:"email"`
+	Role      NullUserRole `json:"role"`
+	UpdatedBy pgtype.UUID  `json:"updated_by"`
 }
 
 func (q *Queries) UpdateUser(ctx context.Context, arg UpdateUserParams) error {
@@ -210,9 +210,9 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 type UpdateUserPasswordParams struct {
-	ID           pgtype.UUID
-	PasswordHash string
-	UpdatedBy    pgtype.UUID
+	ID           pgtype.UUID `json:"id"`
+	PasswordHash string      `json:"password_hash"`
+	UpdatedBy    pgtype.UUID `json:"updated_by"`
 }
 
 func (q *Queries) UpdateUserPassword(ctx context.Context, arg UpdateUserPasswordParams) error {

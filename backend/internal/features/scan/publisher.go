@@ -21,9 +21,11 @@ func NewPublisher(ch *amqp.Channel, queueName string) Publisher {
 }
 
 func (p *publisher) PublishOCRTask(ctx context.Context, taskID, imageURL string) error {
-	payload := map[string]string{
-		"task_id":   taskID,
-		"image_url": imageURL,
+	payload := map[string]interface{}{
+		"id":     taskID,
+		"task":   "app.tasks.scan_task.process_ocr",
+		"args":   []interface{}{taskID, imageURL},
+		"kwargs": map[string]interface{}{},
 	}
 	body, _ := json.Marshal(payload)
 

@@ -21,26 +21,26 @@ RETURNING id, first_name, last_name, date_of_birth, weight, height, gender, acti
 `
 
 type CreateProfileParams struct {
-	UserID        pgtype.UUID
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	DateOfBirth   pgtype.Date
-	Weight        pgtype.Numeric
-	Height        pgtype.Numeric
-	Gender        NullUserGender
-	ActivityLevel NullActivityLevelType
-	CreatedBy     pgtype.UUID
+	UserID        pgtype.UUID           `json:"user_id"`
+	FirstName     pgtype.Text           `json:"first_name"`
+	LastName      pgtype.Text           `json:"last_name"`
+	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
+	Weight        pgtype.Numeric        `json:"weight"`
+	Height        pgtype.Numeric        `json:"height"`
+	Gender        NullUserGender        `json:"gender"`
+	ActivityLevel NullActivityLevelType `json:"activity_level"`
+	CreatedBy     pgtype.UUID           `json:"created_by"`
 }
 
 type CreateProfileRow struct {
-	ID            pgtype.UUID
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	DateOfBirth   pgtype.Date
-	Weight        pgtype.Numeric
-	Height        pgtype.Numeric
-	Gender        NullUserGender
-	ActivityLevel NullActivityLevelType
+	ID            pgtype.UUID           `json:"id"`
+	FirstName     pgtype.Text           `json:"first_name"`
+	LastName      pgtype.Text           `json:"last_name"`
+	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
+	Weight        pgtype.Numeric        `json:"weight"`
+	Height        pgtype.Numeric        `json:"height"`
+	Gender        NullUserGender        `json:"gender"`
+	ActivityLevel NullActivityLevelType `json:"activity_level"`
 }
 
 func (q *Queries) CreateProfile(ctx context.Context, arg CreateProfileParams) (CreateProfileRow, error) {
@@ -79,8 +79,8 @@ WHERE user_id = $1 AND deleted_at IS NULL
 `
 
 type DeleteProfileByUserIdParams struct {
-	UserID    pgtype.UUID
-	DeletedBy pgtype.UUID
+	UserID    pgtype.UUID `json:"user_id"`
+	DeletedBy pgtype.UUID `json:"deleted_by"`
 }
 
 func (q *Queries) DeleteProfileByUserId(ctx context.Context, arg DeleteProfileByUserIdParams) error {
@@ -103,14 +103,14 @@ WHERE user_id = $1 AND deleted_at IS NULL
 `
 
 type GetProfileByUserIdRow struct {
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	DateOfBirth   pgtype.Date
-	Weight        pgtype.Numeric
-	Height        pgtype.Numeric
-	Gender        NullUserGender
-	ActivityLevel NullActivityLevelType
-	CreatedAt     pgtype.Timestamptz
+	FirstName     pgtype.Text           `json:"first_name"`
+	LastName      pgtype.Text           `json:"last_name"`
+	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
+	Weight        pgtype.Numeric        `json:"weight"`
+	Height        pgtype.Numeric        `json:"height"`
+	Gender        NullUserGender        `json:"gender"`
+	ActivityLevel NullActivityLevelType `json:"activity_level"`
+	CreatedAt     pgtype.Timestamptz    `json:"created_at"`
 }
 
 func (q *Queries) GetProfileByUserId(ctx context.Context, userID pgtype.UUID) (GetProfileByUserIdRow, error) {
@@ -145,14 +145,14 @@ WHERE user_id = $1 AND deleted_at IS NULL
 `
 
 type UpdateProfileParams struct {
-	UpdatedBy     pgtype.UUID
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	DateOfBirth   pgtype.Date
-	Weight        pgtype.Numeric
-	Height        pgtype.Numeric
-	Gender        NullUserGender
-	ActivityLevel NullActivityLevelType
+	UpdatedBy     pgtype.UUID           `json:"updated_by"`
+	FirstName     pgtype.Text           `json:"first_name"`
+	LastName      pgtype.Text           `json:"last_name"`
+	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
+	Weight        pgtype.Numeric        `json:"weight"`
+	Height        pgtype.Numeric        `json:"height"`
+	Gender        NullUserGender        `json:"gender"`
+	ActivityLevel NullActivityLevelType `json:"activity_level"`
 }
 
 func (q *Queries) UpdateProfile(ctx context.Context, arg UpdateProfileParams) error {

@@ -39,28 +39,28 @@ RETURNING
 `
 
 type CreateNutritionLogParams struct {
-	FoodName  string
-	Calories  pgtype.Numeric
-	ProteinG  pgtype.Numeric
-	CarbsG    pgtype.Numeric
-	FatG      pgtype.Numeric
-	SugarG    pgtype.Numeric
-	UserID    pgtype.UUID
-	ScanID    pgtype.UUID
-	CreatedBy pgtype.UUID
+	FoodName  string         `json:"food_name"`
+	Calories  pgtype.Numeric `json:"calories"`
+	ProteinG  pgtype.Numeric `json:"protein_g"`
+	CarbsG    pgtype.Numeric `json:"carbs_g"`
+	FatG      pgtype.Numeric `json:"fat_g"`
+	SugarG    pgtype.Numeric `json:"sugar_g"`
+	UserID    pgtype.UUID    `json:"user_id"`
+	ScanID    pgtype.UUID    `json:"scan_id"`
+	CreatedBy pgtype.UUID    `json:"created_by"`
 }
 
 type CreateNutritionLogRow struct {
-	ID        pgtype.UUID
-	FoodName  string
-	Calories  pgtype.Numeric
-	ProteinG  pgtype.Numeric
-	CarbsG    pgtype.Numeric
-	FatG      pgtype.Numeric
-	SugarG    pgtype.Numeric
-	UserID    pgtype.UUID
-	ScanID    pgtype.UUID
-	CreatedAt pgtype.Timestamptz
+	ID        pgtype.UUID        `json:"id"`
+	FoodName  string             `json:"food_name"`
+	Calories  pgtype.Numeric     `json:"calories"`
+	ProteinG  pgtype.Numeric     `json:"protein_g"`
+	CarbsG    pgtype.Numeric     `json:"carbs_g"`
+	FatG      pgtype.Numeric     `json:"fat_g"`
+	SugarG    pgtype.Numeric     `json:"sugar_g"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	ScanID    pgtype.UUID        `json:"scan_id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
 }
 
 func (q *Queries) CreateNutritionLog(ctx context.Context, arg CreateNutritionLogParams) (CreateNutritionLogRow, error) {
@@ -92,15 +92,15 @@ func (q *Queries) CreateNutritionLog(ctx context.Context, arg CreateNutritionLog
 }
 
 type CreateNutritionLogsBatchParams struct {
-	FoodName  string
-	Calories  pgtype.Numeric
-	ProteinG  pgtype.Numeric
-	CarbsG    pgtype.Numeric
-	FatG      pgtype.Numeric
-	SugarG    pgtype.Numeric
-	UserID    pgtype.UUID
-	ScanID    pgtype.UUID
-	CreatedBy pgtype.UUID
+	FoodName  string         `json:"food_name"`
+	Calories  pgtype.Numeric `json:"calories"`
+	ProteinG  pgtype.Numeric `json:"protein_g"`
+	CarbsG    pgtype.Numeric `json:"carbs_g"`
+	FatG      pgtype.Numeric `json:"fat_g"`
+	SugarG    pgtype.Numeric `json:"sugar_g"`
+	UserID    pgtype.UUID    `json:"user_id"`
+	ScanID    pgtype.UUID    `json:"scan_id"`
+	CreatedBy pgtype.UUID    `json:"created_by"`
 }
 
 const deleteNutritionLog = `-- name: DeleteNutritionLog :exec
@@ -113,8 +113,8 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 type DeleteNutritionLogParams struct {
-	ID        pgtype.UUID
-	DeletedBy pgtype.UUID
+	ID        pgtype.UUID `json:"id"`
+	DeletedBy pgtype.UUID `json:"deleted_by"`
 }
 
 func (q *Queries) DeleteNutritionLog(ctx context.Context, arg DeleteNutritionLogParams) error {
@@ -137,14 +137,14 @@ WHERE id = $1 AND deleted_at IS NULL
 `
 
 type UpdateNutritionLogParams struct {
-	ID        pgtype.UUID
-	FoodName  string
-	Calories  pgtype.Numeric
-	ProteinG  pgtype.Numeric
-	CarbsG    pgtype.Numeric
-	FatG      pgtype.Numeric
-	SugarG    pgtype.Numeric
-	UpdatedBy pgtype.UUID
+	ID        pgtype.UUID    `json:"id"`
+	FoodName  string         `json:"food_name"`
+	Calories  pgtype.Numeric `json:"calories"`
+	ProteinG  pgtype.Numeric `json:"protein_g"`
+	CarbsG    pgtype.Numeric `json:"carbs_g"`
+	FatG      pgtype.Numeric `json:"fat_g"`
+	SugarG    pgtype.Numeric `json:"sugar_g"`
+	UpdatedBy pgtype.UUID    `json:"updated_by"`
 }
 
 func (q *Queries) UpdateNutritionLog(ctx context.Context, arg UpdateNutritionLogParams) error {

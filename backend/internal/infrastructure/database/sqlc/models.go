@@ -34,8 +34,8 @@ func (e *ActivityLevelType) Scan(src interface{}) error {
 }
 
 type NullActivityLevelType struct {
-	ActivityLevelType ActivityLevelType
-	Valid             bool // Valid is true if ActivityLevelType is not NULL
+	ActivityLevelType ActivityLevelType `json:"activity_level_type"`
+	Valid             bool              `json:"valid"` // Valid is true if ActivityLevelType is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -78,8 +78,8 @@ func (e *ScanStatus) Scan(src interface{}) error {
 }
 
 type NullScanStatus struct {
-	ScanStatus ScanStatus
-	Valid      bool // Valid is true if ScanStatus is not NULL
+	ScanStatus ScanStatus `json:"scan_status"`
+	Valid      bool       `json:"valid"` // Valid is true if ScanStatus is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -120,8 +120,8 @@ func (e *UserGender) Scan(src interface{}) error {
 }
 
 type NullUserGender struct {
-	UserGender UserGender
-	Valid      bool // Valid is true if UserGender is not NULL
+	UserGender UserGender `json:"user_gender"`
+	Valid      bool       `json:"valid"` // Valid is true if UserGender is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -163,8 +163,8 @@ func (e *UserRole) Scan(src interface{}) error {
 }
 
 type NullUserRole struct {
-	UserRole UserRole
-	Valid    bool // Valid is true if UserRole is not NULL
+	UserRole UserRole `json:"user_role"`
+	Valid    bool     `json:"valid"` // Valid is true if UserRole is not NULL
 }
 
 // Scan implements the Scanner interface.
@@ -185,67 +185,93 @@ func (ns NullUserRole) Value() (driver.Value, error) {
 	return string(ns.UserRole), nil
 }
 
+type Food struct {
+	ID          pgtype.UUID        `json:"id"`
+	Name        string             `json:"name"`
+	Description pgtype.Text        `json:"description"`
+	ServingSize pgtype.Numeric     `json:"serving_size"`
+	ServingUnit string             `json:"serving_unit"`
+	CreatedBy   pgtype.UUID        `json:"created_by"`
+	UpdatedBy   pgtype.UUID        `json:"updated_by"`
+	DeletedBy   pgtype.UUID        `json:"deleted_by"`
+	CreatedAt   pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
+}
+
+type FoodNutrient struct {
+	FoodID     pgtype.UUID    `json:"food_id"`
+	NutrientID pgtype.UUID    `json:"nutrient_id"`
+	Amount     pgtype.Numeric `json:"amount"`
+}
+
+type Nutrient struct {
+	ID   pgtype.UUID `json:"id"`
+	Name string      `json:"name"`
+	Unit string      `json:"unit"`
+}
+
 type NutritionLog struct {
-	ID        pgtype.UUID
-	FoodName  string
-	Calories  pgtype.Numeric
-	ProteinG  pgtype.Numeric
-	CarbsG    pgtype.Numeric
-	FatG      pgtype.Numeric
-	SugarG    pgtype.Numeric
-	UserID    pgtype.UUID
-	ScanID    pgtype.UUID
-	CreatedBy pgtype.UUID
-	UpdatedBy pgtype.UUID
-	DeletedBy pgtype.UUID
-	CreatedAt pgtype.Timestamptz
-	UpdatedAt pgtype.Timestamptz
-	DeletedAt pgtype.Timestamptz
+	ID        pgtype.UUID        `json:"id"`
+	FoodName  string             `json:"food_name"`
+	Calories  pgtype.Numeric     `json:"calories"`
+	ProteinG  pgtype.Numeric     `json:"protein_g"`
+	CarbsG    pgtype.Numeric     `json:"carbs_g"`
+	FatG      pgtype.Numeric     `json:"fat_g"`
+	SugarG    pgtype.Numeric     `json:"sugar_g"`
+	UserID    pgtype.UUID        `json:"user_id"`
+	ScanID    pgtype.UUID        `json:"scan_id"`
+	CreatedBy pgtype.UUID        `json:"created_by"`
+	UpdatedBy pgtype.UUID        `json:"updated_by"`
+	DeletedBy pgtype.UUID        `json:"deleted_by"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type Profile struct {
-	ID            pgtype.UUID
-	FirstName     pgtype.Text
-	LastName      pgtype.Text
-	DateOfBirth   pgtype.Date
-	Weight        pgtype.Numeric
-	Height        pgtype.Numeric
-	Gender        NullUserGender
-	ActivityLevel NullActivityLevelType
-	UserID        pgtype.UUID
-	CreatedBy     pgtype.UUID
-	UpdatedBy     pgtype.UUID
-	DeletedBy     pgtype.UUID
-	CreatedAt     pgtype.Timestamptz
-	UpdatedAt     pgtype.Timestamptz
-	DeletedAt     pgtype.Timestamptz
+	ID            pgtype.UUID           `json:"id"`
+	FirstName     pgtype.Text           `json:"first_name"`
+	LastName      pgtype.Text           `json:"last_name"`
+	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
+	Weight        pgtype.Numeric        `json:"weight"`
+	Height        pgtype.Numeric        `json:"height"`
+	Gender        NullUserGender        `json:"gender"`
+	ActivityLevel NullActivityLevelType `json:"activity_level"`
+	UserID        pgtype.UUID           `json:"user_id"`
+	CreatedBy     pgtype.UUID           `json:"created_by"`
+	UpdatedBy     pgtype.UUID           `json:"updated_by"`
+	DeletedBy     pgtype.UUID           `json:"deleted_by"`
+	CreatedAt     pgtype.Timestamptz    `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz    `json:"updated_at"`
+	DeletedAt     pgtype.Timestamptz    `json:"deleted_at"`
 }
 
 type ScanHistory struct {
-	ID           pgtype.UUID
-	ImgUrl       string
-	Status       NullScanStatus
-	ErrorMessage pgtype.Text
-	UserID       pgtype.UUID
-	CreatedBy    pgtype.UUID
-	UpdatedBy    pgtype.UUID
-	DeletedBy    pgtype.UUID
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	DeletedAt    pgtype.Timestamptz
+	ID           pgtype.UUID        `json:"id"`
+	ImgUrl       string             `json:"img_url"`
+	Status       NullScanStatus     `json:"status"`
+	ErrorMessage pgtype.Text        `json:"error_message"`
+	UserID       pgtype.UUID        `json:"user_id"`
+	CreatedBy    pgtype.UUID        `json:"created_by"`
+	UpdatedBy    pgtype.UUID        `json:"updated_by"`
+	DeletedBy    pgtype.UUID        `json:"deleted_by"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type User struct {
-	ID           pgtype.UUID
-	Username     string
-	Email        string
-	Role         NullUserRole
-	PasswordHash string
-	VerifiedAt   pgtype.Timestamptz
-	CreatedBy    pgtype.UUID
-	UpdatedBy    pgtype.UUID
-	DeletedBy    pgtype.UUID
-	CreatedAt    pgtype.Timestamptz
-	UpdatedAt    pgtype.Timestamptz
-	DeletedAt    pgtype.Timestamptz
+	ID           pgtype.UUID        `json:"id"`
+	Username     string             `json:"username"`
+	Email        string             `json:"email"`
+	Role         NullUserRole       `json:"role"`
+	PasswordHash string             `json:"password_hash"`
+	VerifiedAt   pgtype.Timestamptz `json:"verified_at"`
+	CreatedBy    pgtype.UUID        `json:"created_by"`
+	UpdatedBy    pgtype.UUID        `json:"updated_by"`
+	DeletedBy    pgtype.UUID        `json:"deleted_by"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
 }

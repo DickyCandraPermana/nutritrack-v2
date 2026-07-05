@@ -16,6 +16,7 @@ import (
 	// Import app config, state, and feature
 	"nutritrack.com/backend/internal/app"
 	"nutritrack.com/backend/internal/config"
+	"nutritrack.com/backend/internal/features/food"
 	"nutritrack.com/backend/internal/features/scan"
 )
 
@@ -50,10 +51,23 @@ func main() {
 	fiberApp := fiber.New(fiber.Config{
 		BodyLimit: 5 * 1024 * 1024,
 	})
+	
+	// Add CORS middleware
+	fiberApp.Use(func(c *fiber.Ctx) error {
+		c.Set("Access-Control-Allow-Origin", "*")
+		c.Set("Access-Control-Allow-Methods", "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS")
+		c.Set("Access-Control-Allow-Headers", "Origin, Content-Type, Accept, Authorization")
+		if c.Method() == "OPTIONS" {
+			return c.SendStatus(204)
+		}
+		return c.Next()
+	})
+
 	api := fiberApp.Group("/api/v1")
 
 	// 8. Mount Features
 	scan.SetupRoutes(api, state)
+	food.SetupRoutes(api, state)
 
 	// 9. Jalankan Server
 	log.Printf("🚀 Server berjalan di port %s\n", cfg.Addr)

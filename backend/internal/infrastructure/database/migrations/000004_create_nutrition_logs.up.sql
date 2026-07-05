@@ -32,7 +32,7 @@ CREATE TABLE nutrition_logs (
 );
 
 CREATE INDEX idx_nutrition_logs_query
-ON nutrition_logs (profile_id, created_at)
+ON nutrition_logs (user_id, created_at)
 WHERE deleted_at IS NULL;
 
 CREATE TRIGGER set_timestamp_nutrition_logs
