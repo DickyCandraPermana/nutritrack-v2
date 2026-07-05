@@ -2,6 +2,7 @@ package scan
 
 import (
 	"github.com/gofiber/fiber/v2"
+	"nutritrack.com/backend/internal/helper"
 )
 
 type Handler struct {
@@ -18,8 +19,10 @@ func (h *Handler) UploadLabel(c *fiber.Ctx) error {
 		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Gambar tidak ditemukan dalam request"})
 	}
 
-	// Simulasi ambil userID dari JWT middleware
-	userID := "user-uuid-placeholder"
+	userID, err := helper.GetUserIDFromContext(c)
+	if err != nil {
+		return c.Status(fiber.StatusUnauthorized).JSON(fiber.Map{"error": "Unauthorized"})
+	}
 
 	taskID, err := h.service.ProcessScan(c.Context(), file, userID)
 	if err != nil {
@@ -32,6 +35,22 @@ func (h *Handler) UploadLabel(c *fiber.Ctx) error {
 			"task_id": taskID,
 			"status":  "PENDING",
 		},
+	})
+}
+
+func (h *Handler) GetScanResult(c *fiber.Ctx) error {
+	taskUUID, err := helper.StringToUUID(c.Params("id"))
+	if err != nil {
+		return c.Status(fiber.StatusBadRequest).JSON(fiber.Map{"error": "Invalid task ID"})
+	}
+
+	result, err := h.service.GetScanResult(c.Context(), taskUUID)
+	if err != nil {
+		return c.Status(fiber.StatusNotFound).JSON(fiber.Map{"error": "Scan not found"})
+	}
+
+	return c.JSON(fiber.Map{
+		"data": result,
 	})
 }
 

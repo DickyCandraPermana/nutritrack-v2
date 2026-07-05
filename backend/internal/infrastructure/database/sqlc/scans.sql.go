@@ -23,8 +23,8 @@ RETURNING id, img_url, status, error_message
 `
 
 type CreateScanHistoryParams struct {
-	ImgUrl string      `json:"img_url"`
-	UserID pgtype.UUID `json:"user_id"`
+	ImgUrl string `json:"img_url"`
+	UserID int64  `json:"user_id"`
 }
 
 type CreateScanHistoryRow struct {
@@ -54,7 +54,7 @@ WHERE id = $1 AND deleted_at IS NULL
 
 type DeleteScanParams struct {
 	ID        pgtype.UUID `json:"id"`
-	DeletedBy pgtype.UUID `json:"deleted_by"`
+	DeletedBy pgtype.Int8 `json:"deleted_by"`
 }
 
 func (q *Queries) DeleteScan(ctx context.Context, arg DeleteScanParams) error {
@@ -76,7 +76,7 @@ WHERE deleted_at IS NULL
 
 type GetScanRow struct {
 	ID           pgtype.UUID        `json:"id"`
-	UserID       pgtype.UUID        `json:"user_id"`
+	UserID       int64              `json:"user_id"`
 	ImgUrl       string             `json:"img_url"`
 	Status       NullScanStatus     `json:"status"`
 	ErrorMessage pgtype.Text        `json:"error_message"`
@@ -116,17 +116,19 @@ SELECT
   img_url,
   status,
   error_message,
+  nutrition_data,
   created_at
 FROM scan_histories
 WHERE id = $1 AND deleted_at IS NULL
 `
 
 type GetScanByIdRow struct {
-	ID           pgtype.UUID        `json:"id"`
-	ImgUrl       string             `json:"img_url"`
-	Status       NullScanStatus     `json:"status"`
-	ErrorMessage pgtype.Text        `json:"error_message"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	ID            pgtype.UUID        `json:"id"`
+	ImgUrl        string             `json:"img_url"`
+	Status        NullScanStatus     `json:"status"`
+	ErrorMessage  pgtype.Text        `json:"error_message"`
+	NutritionData []byte             `json:"nutrition_data"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
 }
 
 func (q *Queries) GetScanById(ctx context.Context, id pgtype.UUID) (GetScanByIdRow, error) {
@@ -137,6 +139,7 @@ func (q *Queries) GetScanById(ctx context.Context, id pgtype.UUID) (GetScanByIdR
 		&i.ImgUrl,
 		&i.Status,
 		&i.ErrorMessage,
+		&i.NutritionData,
 		&i.CreatedAt,
 	)
 	return i, err
@@ -161,7 +164,7 @@ type GetScanByUserIdRow struct {
 	CreatedAt    pgtype.Timestamptz `json:"created_at"`
 }
 
-func (q *Queries) GetScanByUserId(ctx context.Context, userID pgtype.UUID) ([]GetScanByUserIdRow, error) {
+func (q *Queries) GetScanByUserId(ctx context.Context, userID int64) ([]GetScanByUserIdRow, error) {
 	rows, err := q.db.Query(ctx, getScanByUserId, userID)
 	if err != nil {
 		return nil, err
@@ -189,15 +192,16 @@ func (q *Queries) GetScanByUserId(ctx context.Context, userID pgtype.UUID) ([]Ge
 
 const updateScan = `-- name: UpdateScan :exec
 UPDATE scan_histories
-SET status = $2, error_message = $3, updated_by = $4, updated_at = NOW()
+SET status = $2, error_message = $3, nutrition_data = $4, updated_by = $5, updated_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL
 `
 
 type UpdateScanParams struct {
-	ID           pgtype.UUID    `json:"id"`
-	Status       NullScanStatus `json:"status"`
-	ErrorMessage pgtype.Text    `json:"error_message"`
-	UpdatedBy    pgtype.UUID    `json:"updated_by"`
+	ID            pgtype.UUID    `json:"id"`
+	Status        NullScanStatus `json:"status"`
+	ErrorMessage  pgtype.Text    `json:"error_message"`
+	NutritionData []byte         `json:"nutrition_data"`
+	UpdatedBy     pgtype.Int8    `json:"updated_by"`
 }
 
 func (q *Queries) UpdateScan(ctx context.Context, arg UpdateScanParams) error {
@@ -205,6 +209,7 @@ func (q *Queries) UpdateScan(ctx context.Context, arg UpdateScanParams) error {
 		arg.ID,
 		arg.Status,
 		arg.ErrorMessage,
+		arg.NutritionData,
 		arg.UpdatedBy,
 	)
 	return err

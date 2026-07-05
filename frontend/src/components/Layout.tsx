@@ -1,5 +1,4 @@
-import type { ReactNode } from 'react';
-import { NavLink } from 'react-router-dom';
+import { NavLink, Outlet } from 'react-router-dom';
 import { Home, Search, Book, Camera, User, Utensils } from 'lucide-react';
 import { clsx, type ClassValue } from 'clsx';
 import { twMerge } from 'tailwind-merge';
@@ -8,11 +7,7 @@ export function cn(...inputs: ClassValue[]) {
   return twMerge(clsx(inputs));
 }
 
-interface LayoutProps {
-  children: ReactNode;
-}
-
-export default function Layout({ children }: LayoutProps) {
+export default function Layout() {
   const navItems = [
     { to: '/', icon: Home, label: 'Home' },
     { to: '/foods', icon: Search, label: 'Foods' },
@@ -40,7 +35,7 @@ export default function Layout({ children }: LayoutProps) {
           </h1>
         </header>
         
-        {children}
+        <Outlet />
       </main>
 
       {/* Bottom Navigation (Mobile) & Side Navigation (Desktop) */}

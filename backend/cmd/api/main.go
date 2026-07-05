@@ -5,41 +5,49 @@ import (
 
 	"github.com/gofiber/fiber/v2"
 
-	// Import 3 folder infrastruktur secara terpisah
+	// Infrastruktur
 	broker "nutritrack.com/backend/internal/infrastructure/broker"
 	database "nutritrack.com/backend/internal/infrastructure/database"
 	storage "nutritrack.com/backend/internal/infrastructure/storage"
+	db_sqlc "nutritrack.com/backend/internal/infrastructure/database/sqlc"
 
-	// Gunakan alias 'db' khusus untuk hasil generate sqlc
-	db "nutritrack.com/backend/internal/infrastructure/database/sqlc"
-
-	// Import app config, state, and feature
+	// Config dan State
 	"nutritrack.com/backend/internal/app"
 	"nutritrack.com/backend/internal/config"
+	
+	// Features
+	"nutritrack.com/backend/internal/features/analytics"
+	"nutritrack.com/backend/internal/features/auth"
+	"nutritrack.com/backend/internal/features/diary"
 	"nutritrack.com/backend/internal/features/food"
+	"nutritrack.com/backend/internal/features/goals"
 	"nutritrack.com/backend/internal/features/scan"
+	"nutritrack.com/backend/internal/features/security"
+	"nutritrack.com/backend/internal/features/user"
 )
 
 func main() {
+	// =========================================================================
 	// 1. Init Config
+	// =========================================================================
 	cfg := config.Load()
 
-	// 2. Eksekusi Koneksi Database
+	// =========================================================================
+	// 2. Infrastruktur (PostgreSQL, MinIO, RabbitMQ)
+	// =========================================================================
 	dbPool := database.NewPostgresPool(cfg.DBUrl)
 	defer dbPool.Close()
 
-	// 3. Eksekusi Koneksi Storage (MinIO)
 	minioClient := storage.NewMinioClient(cfg.MinioEndpoint, cfg.MinioAccessKey, cfg.MinioSecretKey, cfg.MinioBucket)
 
-	// 4. Eksekusi Koneksi Broker (RabbitMQ)
 	rabbitConn, rabbitCh := broker.NewRabbitMQConnection(cfg.RabbitMQUrl, cfg.RabbitMQQueue)
 	defer rabbitConn.Close()
 	defer rabbitCh.Close()
 
-	// 5. Setup Dependencies (sqlc wrapper)
-	queries := db.New(dbPool)
+	// Initialize SQLC queries
+	queries := db_sqlc.New(dbPool)
 
-	// 6. Build App State
+	// Build App State
 	state := &app.State{
 		Config:   cfg,
 		Queries:  queries,
@@ -47,12 +55,13 @@ func main() {
 		RabbitMQ: rabbitCh,
 	}
 
-	// 7. Setup Fiber & Routes
+	// =========================================================================
+	// 3. Setup Fiber App
+	// =========================================================================
 	fiberApp := fiber.New(fiber.Config{
 		BodyLimit: 5 * 1024 * 1024,
 	})
 	
-	// Add CORS middleware
 	fiberApp.Use(func(c *fiber.Ctx) error {
 		c.Set("Access-Control-Allow-Origin", "*")
 		c.Set("Access-Control-Allow-Methods", "GET,POST,HEAD,PUT,DELETE,PATCH,OPTIONS")
@@ -65,11 +74,21 @@ func main() {
 
 	api := fiberApp.Group("/api/v1")
 
-	// 8. Mount Features
-	scan.SetupRoutes(api, state)
+	// =========================================================================
+	// 4. Mount All Features
+	// =========================================================================
+	auth.SetupRoutes(api, state)
+	user.SetupRoutes(api, state)
 	food.SetupRoutes(api, state)
+	diary.SetupRoutes(api, state)
+	goals.SetupRoutes(api, state)
+	scan.SetupRoutes(api, state)
+	security.SetupRoutes(api, state)
+	analytics.SetupRoutes(api, state)
 
-	// 9. Jalankan Server
+	// =========================================================================
+	// 5. Start Server
+	// =========================================================================
 	log.Printf("🚀 Server berjalan di port %s\n", cfg.Addr)
 	if err := fiberApp.Listen(cfg.Addr); err != nil {
 		log.Fatalf("Gagal menjalankan server: %v", err)

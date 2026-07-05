@@ -10,7 +10,7 @@ RETURNING id, img_url, status, error_message;
 
 -- name: UpdateScan :exec
 UPDATE scan_histories
-SET status = $2, error_message = $3, updated_by = $4, updated_at = NOW()
+SET status = $2, error_message = $3, nutrition_data = $4, updated_by = $5, updated_at = NOW()
 WHERE id = $1 AND deleted_at IS NULL;
 
 -- name: GetScanById :one
@@ -19,6 +19,7 @@ SELECT
   img_url,
   status,
   error_message,
+  nutrition_data,
   created_at
 FROM scan_histories
 WHERE id = $1 AND deleted_at IS NULL;

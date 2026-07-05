@@ -1,44 +1,109 @@
--- name: CreateUser :one
-INSERT INTO users (
-  username, email, password_hash, role, created_by
-) VALUES (
-  $1, $2, $3, $4, $5
-)
-RETURNING id, username, email, role, created_at;
-
--- name: UpdateUser :exec
-UPDATE users
-SET username = $2, email = $3, role = $4, updated_by = $5, updated_at = NOW()
-WHERE id = $1 AND deleted_at IS NULL;
-
--- name: UpdateUserPassword :exec
-UPDATE users
-SET password_hash = $2, updated_by = $3, updated_at = NOW()
-WHERE id = $1 AND deleted_at IS NULL;
-
--- name: GetUserById :one
+-- name: GetPaginatedUsers :many
 SELECT
-  username, email, role
+    id,
+    username,
+    email,
+    height,
+    weight,
+    date_of_birth,
+    activity_level,
+    gender,
+    created_at,
+    updated_at
 FROM users
-WHERE id = $1 AND deleted_at IS NULL;
+WHERE deleted_at IS NULL
+LIMIT $1 OFFSET $2;
+
+-- name: GetAllUsers :many
+SELECT
+    id,
+    username,
+    email,
+    height,
+    weight,
+    date_of_birth,
+    activity_level,
+    gender,
+    created_at,
+    updated_at
+FROM users
+WHERE deleted_at IS NULL
+ORDER BY created_at DESC;
+
+-- name: GetUserByID :one
+SELECT
+    id,
+    username,
+    email,
+    height,
+    weight,
+    date_of_birth,
+    activity_level,
+    gender,
+    created_at,
+    updated_at
+FROM users
+WHERE id = $1;
 
 -- name: GetUserByEmail :one
-SELECT id, username, email, password_hash, role
-FROM users
-WHERE email = $1 AND deleted_at IS NULL;
-
--- name: GetUserByUsername :one
-SELECT id, username, email, password_hash, role
-FROM users
-WHERE username = $1 AND deleted_at IS NULL;
-
--- name: GetUsers :many
 SELECT
-  username, email, role
+    id,
+    username,
+    password,
+    email,
+    weight,
+    height,
+    date_of_birth,
+    activity_level,
+    gender,
+    created_at,
+    updated_at
 FROM users
-WHERE deleted_at IS NULL;
+WHERE email = $1
+  AND deleted_at IS NULL;
 
--- name: DeleteUser :exec
+-- name: CreateUser :one
+INSERT INTO users (
+    username,
+    password,
+    email,
+    height,
+    weight,
+    date_of_birth,
+    activity_level,
+    gender
+) VALUES (
+    $1, $2, $3, $4, $5, $6, $7, $8
+) RETURNING id, created_at, updated_at;
+
+-- name: UpdateUser :execrows
 UPDATE users
-SET deleted_at = NOW(), deleted_by = $2, updated_at = NOW()
+SET
+    username = $2,
+    email = $3,
+    height = $4,
+    weight = $5,
+    date_of_birth = $6,
+    activity_level = $7,
+    gender = $8,
+    updated_at = NOW()
+WHERE id = $1;
+
+-- name: UpdateUserAvatar :execrows
+UPDATE users
+SET
+    avatar = $2,
+    updated_at = NOW()
+WHERE id = $1;
+
+-- name: UpdateUserPassword :execrows
+UPDATE users
+SET
+    password = $2,
+    updated_at = NOW()
+WHERE id = $1;
+
+-- name: DeleteUser :execrows
+UPDATE users
+SET deleted_at = NOW()
 WHERE id = $1;

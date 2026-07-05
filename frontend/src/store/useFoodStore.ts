@@ -1,4 +1,5 @@
 import { create } from 'zustand';
+import { fetchApi } from '../lib/api';
 
 export interface Food {
   id: string;
@@ -26,22 +27,22 @@ export const useFoodStore = create<FoodState>((set, get) => ({
   fetchFoods: async () => {
     set({ isLoading: true });
     try {
-      const url = get().searchQuery 
-        ? `/api/v1/foods?q=${encodeURIComponent(get().searchQuery)}`
-        : '/api/v1/foods';
+      // The backend uses /foods/search?q=
+      // If query is empty, maybe /foods/search (it should handle empty q)
+      const url = `/foods/search?q=${encodeURIComponent(get().searchQuery)}`;
         
-      const response = await fetch(url);
+      const response = await fetchApi(url);
       
       if (!response.ok) {
         throw new Error('Network response was not ok');
       }
       
-      const data = await response.json();
-      set({ foods: data, isLoading: false });
+      const json = await response.json();
+      set({ foods: json.data || [], isLoading: false });
       
     } catch (error) {
       console.error('Failed to fetch foods', error);
-      set({ isLoading: false });
+      set({ foods: [], isLoading: false });
     }
   }
 }));

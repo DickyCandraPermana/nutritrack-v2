@@ -21,6 +21,12 @@ up:
 down:
 	docker-compose down
 
+.PHONY: fresh
+fresh:
+	docker-compose down -v
+	docker-compose build --no-cache
+	docker-compose up -d
+
 .PHONY: infra-up
 infra-up:
 	docker-compose up -d db rabbitmq minio
@@ -52,17 +58,15 @@ backend-dev:
 
 .PHONY: backend-build
 backend-build:
-	@cd backend; \
-	go build -o bin/api cmd/api/main.go
+	@cd backend && go build -o bin/api ./cmd/api
 
 .PHONY: backend-tidy
 backend-tidy:
-	@cd backend; \
-	go mod tidy
+	@cd backend && go mod tidy
 
 .PHONY: sqlc-generate
 sqlc-generate:
-	@cd backend; \
+	@cd backend && sqlc generate
 	sqlc generate
 
 .PHONY: migrate-create

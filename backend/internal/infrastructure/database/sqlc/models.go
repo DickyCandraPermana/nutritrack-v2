@@ -7,54 +7,11 @@ package sqlc
 import (
 	"database/sql/driver"
 	"fmt"
+	"net/netip"
+	"time"
 
 	"github.com/jackc/pgx/v5/pgtype"
 )
-
-type ActivityLevelType string
-
-const (
-	ActivityLevelTypeSedentary  ActivityLevelType = "sedentary"
-	ActivityLevelTypeLight      ActivityLevelType = "light"
-	ActivityLevelTypeModerate   ActivityLevelType = "moderate"
-	ActivityLevelTypeActive     ActivityLevelType = "active"
-	ActivityLevelTypeVeryActive ActivityLevelType = "very_active"
-)
-
-func (e *ActivityLevelType) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = ActivityLevelType(s)
-	case string:
-		*e = ActivityLevelType(s)
-	default:
-		return fmt.Errorf("unsupported scan type for ActivityLevelType: %T", src)
-	}
-	return nil
-}
-
-type NullActivityLevelType struct {
-	ActivityLevelType ActivityLevelType `json:"activity_level_type"`
-	Valid             bool              `json:"valid"` // Valid is true if ActivityLevelType is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullActivityLevelType) Scan(value interface{}) error {
-	if value == nil {
-		ns.ActivityLevelType, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.ActivityLevelType.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullActivityLevelType) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.ActivityLevelType), nil
-}
 
 type ScanStatus string
 
@@ -100,178 +57,95 @@ func (ns NullScanStatus) Value() (driver.Value, error) {
 	return string(ns.ScanStatus), nil
 }
 
-type UserGender string
-
-const (
-	UserGenderMale   UserGender = "male"
-	UserGenderFemale UserGender = "female"
-)
-
-func (e *UserGender) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = UserGender(s)
-	case string:
-		*e = UserGender(s)
-	default:
-		return fmt.Errorf("unsupported scan type for UserGender: %T", src)
-	}
-	return nil
-}
-
-type NullUserGender struct {
-	UserGender UserGender `json:"user_gender"`
-	Valid      bool       `json:"valid"` // Valid is true if UserGender is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullUserGender) Scan(value interface{}) error {
-	if value == nil {
-		ns.UserGender, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.UserGender.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullUserGender) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.UserGender), nil
-}
-
-type UserRole string
-
-const (
-	UserRoleUser       UserRole = "user"
-	UserRoleAdmin      UserRole = "admin"
-	UserRoleSuperAdmin UserRole = "super_admin"
-)
-
-func (e *UserRole) Scan(src interface{}) error {
-	switch s := src.(type) {
-	case []byte:
-		*e = UserRole(s)
-	case string:
-		*e = UserRole(s)
-	default:
-		return fmt.Errorf("unsupported scan type for UserRole: %T", src)
-	}
-	return nil
-}
-
-type NullUserRole struct {
-	UserRole UserRole `json:"user_role"`
-	Valid    bool     `json:"valid"` // Valid is true if UserRole is not NULL
-}
-
-// Scan implements the Scanner interface.
-func (ns *NullUserRole) Scan(value interface{}) error {
-	if value == nil {
-		ns.UserRole, ns.Valid = "", false
-		return nil
-	}
-	ns.Valid = true
-	return ns.UserRole.Scan(value)
-}
-
-// Value implements the driver Valuer interface.
-func (ns NullUserRole) Value() (driver.Value, error) {
-	if !ns.Valid {
-		return nil, nil
-	}
-	return string(ns.UserRole), nil
+type AuditLog struct {
+	ID           int64            `json:"id"`
+	UserID       int64            `json:"user_id"`
+	Action       string           `json:"action"`
+	ResourceType string           `json:"resource_type"`
+	ResourceID   pgtype.Int8      `json:"resource_id"`
+	OldValue     []byte           `json:"old_value"`
+	NewValue     []byte           `json:"new_value"`
+	IpAddress    *netip.Addr      `json:"ip_address"`
+	UserAgent    pgtype.Text      `json:"user_agent"`
+	CreatedAt    pgtype.Timestamp `json:"created_at"`
 }
 
 type Food struct {
-	ID          pgtype.UUID        `json:"id"`
+	ID          int64              `json:"id"`
 	Name        string             `json:"name"`
 	Description pgtype.Text        `json:"description"`
 	ServingSize pgtype.Numeric     `json:"serving_size"`
 	ServingUnit string             `json:"serving_unit"`
-	CreatedBy   pgtype.UUID        `json:"created_by"`
-	UpdatedBy   pgtype.UUID        `json:"updated_by"`
-	DeletedBy   pgtype.UUID        `json:"deleted_by"`
 	CreatedAt   pgtype.Timestamptz `json:"created_at"`
 	UpdatedAt   pgtype.Timestamptz `json:"updated_at"`
 	DeletedAt   pgtype.Timestamptz `json:"deleted_at"`
 }
 
+type FoodDiary struct {
+	ID             int64              `json:"id"`
+	UserID         int64              `json:"user_id"`
+	FoodID         int64              `json:"food_id"`
+	AmountConsumed pgtype.Numeric     `json:"amount_consumed"`
+	ConsumedAt     pgtype.Timestamptz `json:"consumed_at"`
+	MealType       pgtype.Text        `json:"meal_type"`
+	CreatedAt      pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt      pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt      pgtype.Timestamptz `json:"deleted_at"`
+}
+
 type FoodNutrient struct {
-	FoodID     pgtype.UUID    `json:"food_id"`
-	NutrientID pgtype.UUID    `json:"nutrient_id"`
+	FoodID     int64          `json:"food_id"`
+	NutrientID int64          `json:"nutrient_id"`
 	Amount     pgtype.Numeric `json:"amount"`
 }
 
 type Nutrient struct {
-	ID   pgtype.UUID `json:"id"`
-	Name string      `json:"name"`
-	Unit string      `json:"unit"`
+	ID   int64  `json:"id"`
+	Name string `json:"name"`
+	Unit string `json:"unit"`
 }
 
-type NutritionLog struct {
-	ID        pgtype.UUID        `json:"id"`
-	FoodName  string             `json:"food_name"`
-	Calories  pgtype.Numeric     `json:"calories"`
-	ProteinG  pgtype.Numeric     `json:"protein_g"`
-	CarbsG    pgtype.Numeric     `json:"carbs_g"`
-	FatG      pgtype.Numeric     `json:"fat_g"`
-	SugarG    pgtype.Numeric     `json:"sugar_g"`
-	UserID    pgtype.UUID        `json:"user_id"`
-	ScanID    pgtype.UUID        `json:"scan_id"`
-	CreatedBy pgtype.UUID        `json:"created_by"`
-	UpdatedBy pgtype.UUID        `json:"updated_by"`
-	DeletedBy pgtype.UUID        `json:"deleted_by"`
-	CreatedAt pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt pgtype.Timestamptz `json:"deleted_at"`
-}
-
-type Profile struct {
-	ID            pgtype.UUID           `json:"id"`
-	FirstName     pgtype.Text           `json:"first_name"`
-	LastName      pgtype.Text           `json:"last_name"`
-	DateOfBirth   pgtype.Date           `json:"date_of_birth"`
-	Weight        pgtype.Numeric        `json:"weight"`
-	Height        pgtype.Numeric        `json:"height"`
-	Gender        NullUserGender        `json:"gender"`
-	ActivityLevel NullActivityLevelType `json:"activity_level"`
-	UserID        pgtype.UUID           `json:"user_id"`
-	CreatedBy     pgtype.UUID           `json:"created_by"`
-	UpdatedBy     pgtype.UUID           `json:"updated_by"`
-	DeletedBy     pgtype.UUID           `json:"deleted_by"`
-	CreatedAt     pgtype.Timestamptz    `json:"created_at"`
-	UpdatedAt     pgtype.Timestamptz    `json:"updated_at"`
-	DeletedAt     pgtype.Timestamptz    `json:"deleted_at"`
+type NutritionGoal struct {
+	ID                  int64              `json:"id"`
+	UserID              int64              `json:"user_id"`
+	DailyTargetCalories pgtype.Numeric     `json:"daily_target_calories"`
+	StartDate           time.Time          `json:"start_date"`
+	EndDate             pgtype.Date        `json:"end_date"`
+	GoalType            string             `json:"goal_type"`
+	CreatedAt           pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt           pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt           pgtype.Timestamptz `json:"deleted_at"`
 }
 
 type ScanHistory struct {
-	ID           pgtype.UUID        `json:"id"`
-	ImgUrl       string             `json:"img_url"`
-	Status       NullScanStatus     `json:"status"`
-	ErrorMessage pgtype.Text        `json:"error_message"`
-	UserID       pgtype.UUID        `json:"user_id"`
-	CreatedBy    pgtype.UUID        `json:"created_by"`
-	UpdatedBy    pgtype.UUID        `json:"updated_by"`
-	DeletedBy    pgtype.UUID        `json:"deleted_by"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
+	ID            pgtype.UUID        `json:"id"`
+	ImgUrl        string             `json:"img_url"`
+	Status        NullScanStatus     `json:"status"`
+	ErrorMessage  pgtype.Text        `json:"error_message"`
+	UserID        int64              `json:"user_id"`
+	CreatedBy     pgtype.Int8        `json:"created_by"`
+	UpdatedBy     pgtype.Int8        `json:"updated_by"`
+	DeletedBy     pgtype.Int8        `json:"deleted_by"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt     pgtype.Timestamptz `json:"deleted_at"`
+	NutritionData []byte             `json:"nutrition_data"`
 }
 
 type User struct {
-	ID           pgtype.UUID        `json:"id"`
-	Username     string             `json:"username"`
-	Email        string             `json:"email"`
-	Role         NullUserRole       `json:"role"`
-	PasswordHash string             `json:"password_hash"`
-	VerifiedAt   pgtype.Timestamptz `json:"verified_at"`
-	CreatedBy    pgtype.UUID        `json:"created_by"`
-	UpdatedBy    pgtype.UUID        `json:"updated_by"`
-	DeletedBy    pgtype.UUID        `json:"deleted_by"`
-	CreatedAt    pgtype.Timestamptz `json:"created_at"`
-	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
-	DeletedAt    pgtype.Timestamptz `json:"deleted_at"`
+	ID            int64              `json:"id"`
+	Email         string             `json:"email"`
+	Username      string             `json:"username"`
+	Password      []byte             `json:"password"`
+	Height        pgtype.Numeric     `json:"height"`
+	Weight        pgtype.Numeric     `json:"weight"`
+	DateOfBirth   pgtype.Date        `json:"date_of_birth"`
+	ActivityLevel pgtype.Int4        `json:"activity_level"`
+	Gender        pgtype.Text        `json:"gender"`
+	CreatedAt     pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt     pgtype.Timestamptz `json:"updated_at"`
+	DeletedAt     pgtype.Timestamptz `json:"deleted_at"`
+	Avatar        pgtype.Text        `json:"avatar"`
+	OtpSecret     pgtype.Text        `json:"otp_secret"`
+	OtpEnabled    bool               `json:"otp_enabled"`
 }

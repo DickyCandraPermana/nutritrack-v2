@@ -14,7 +14,7 @@ import (
 const createFood = `-- name: CreateFood :one
 INSERT INTO foods (name, description, serving_size, serving_unit)
 VALUES ($1, $2, $3, $4)
-RETURNING id, name, description, serving_size, serving_unit, created_by, updated_by, deleted_by, created_at, updated_at, deleted_at
+RETURNING id, created_at, updated_at
 `
 
 type CreateFoodParams struct {
@@ -24,110 +24,121 @@ type CreateFoodParams struct {
 	ServingUnit string         `json:"serving_unit"`
 }
 
-func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (Food, error) {
+type CreateFoodRow struct {
+	ID        int64              `json:"id"`
+	CreatedAt pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt pgtype.Timestamptz `json:"updated_at"`
+}
+
+func (q *Queries) CreateFood(ctx context.Context, arg CreateFoodParams) (CreateFoodRow, error) {
 	row := q.db.QueryRow(ctx, createFood,
 		arg.Name,
 		arg.Description,
 		arg.ServingSize,
 		arg.ServingUnit,
 	)
-	var i Food
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.ServingSize,
-		&i.ServingUnit,
-		&i.CreatedBy,
-		&i.UpdatedBy,
-		&i.DeletedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
+	var i CreateFoodRow
+	err := row.Scan(&i.ID, &i.CreatedAt, &i.UpdatedAt)
 	return i, err
 }
 
-const getFood = `-- name: GetFood :one
-SELECT id, name, description, serving_size, serving_unit, created_by, updated_by, deleted_by, created_at, updated_at, deleted_at FROM foods WHERE id = $1
+const createFoodNutrient = `-- name: CreateFoodNutrient :exec
+INSERT INTO food_nutrients (food_id, nutrient_id, amount)
+VALUES ($1, $2, $3)
 `
 
-func (q *Queries) GetFood(ctx context.Context, id pgtype.UUID) (Food, error) {
-	row := q.db.QueryRow(ctx, getFood, id)
-	var i Food
-	err := row.Scan(
-		&i.ID,
-		&i.Name,
-		&i.Description,
-		&i.ServingSize,
-		&i.ServingUnit,
-		&i.CreatedBy,
-		&i.UpdatedBy,
-		&i.DeletedBy,
-		&i.CreatedAt,
-		&i.UpdatedAt,
-		&i.DeletedAt,
-	)
-	return i, err
+type CreateFoodNutrientParams struct {
+	FoodID     int64          `json:"food_id"`
+	NutrientID int64          `json:"nutrient_id"`
+	Amount     pgtype.Numeric `json:"amount"`
 }
 
-const listFoods = `-- name: ListFoods :many
-SELECT
-  f.id,
-  f.name,
-  f.description,
-  f.serving_size,
-  f.serving_unit,
-  COALESCE(MAX(fn.amount) FILTER (WHERE n.name = 'Caloric Value'), 0)::float AS calories,
-  COALESCE(MAX(fn.amount) FILTER (WHERE n.name = 'Protein'), 0)::float AS protein,
-  COALESCE(MAX(fn.amount) FILTER (WHERE n.name = 'Fat'), 0)::float AS fat,
-  COALESCE(MAX(fn.amount) FILTER (WHERE n.name = 'Carbohydrates'), 0)::float AS carbs
+func (q *Queries) CreateFoodNutrient(ctx context.Context, arg CreateFoodNutrientParams) error {
+	_, err := q.db.Exec(ctx, createFoodNutrient, arg.FoodID, arg.NutrientID, arg.Amount)
+	return err
+}
+
+const deleteFood = `-- name: DeleteFood :execrows
+UPDATE foods
+SET deleted_at = NOW()
+WHERE id = $1
+`
+
+func (q *Queries) DeleteFood(ctx context.Context, id int64) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteFood, id)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const deleteFoodNutrients = `-- name: DeleteFoodNutrients :execrows
+DELETE FROM food_nutrients WHERE food_id = $1
+`
+
+func (q *Queries) DeleteFoodNutrients(ctx context.Context, foodID int64) (int64, error) {
+	result, err := q.db.Exec(ctx, deleteFoodNutrients, foodID)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
+}
+
+const getFoodByID = `-- name: GetFoodByID :many
+SELECT 
+    f.id,
+    f.name,
+    f.description,
+    f.serving_size,
+    f.serving_unit,
+    fn.amount,
+    n.id AS nutrient_id,
+    n.name AS nutrient_name,
+    n.unit,
+    f.created_at,
+    f.updated_at
 FROM foods f
-LEFT JOIN food_nutrients fn ON f.id = fn.food_id
-LEFT JOIN nutrients n ON fn.nutrient_id = n.id
-WHERE f.name ILIKE '%' || $3::text || '%'
-GROUP BY f.id
-ORDER BY f.name
-LIMIT $1 OFFSET $2
+LEFT JOIN food_nutrients fn ON fn.food_id = f.id
+LEFT JOIN nutrients n ON n.id = fn.nutrient_id
+WHERE f.id = $1
+    AND f.deleted_at IS NULL
 `
 
-type ListFoodsParams struct {
-	Limit  int32  `json:"limit"`
-	Offset int32  `json:"offset"`
-	Name   string `json:"name"`
+type GetFoodByIDRow struct {
+	ID           int64              `json:"id"`
+	Name         string             `json:"name"`
+	Description  pgtype.Text        `json:"description"`
+	ServingSize  pgtype.Numeric     `json:"serving_size"`
+	ServingUnit  string             `json:"serving_unit"`
+	Amount       pgtype.Numeric     `json:"amount"`
+	NutrientID   pgtype.Int8        `json:"nutrient_id"`
+	NutrientName pgtype.Text        `json:"nutrient_name"`
+	Unit         pgtype.Text        `json:"unit"`
+	CreatedAt    pgtype.Timestamptz `json:"created_at"`
+	UpdatedAt    pgtype.Timestamptz `json:"updated_at"`
 }
 
-type ListFoodsRow struct {
-	ID          pgtype.UUID    `json:"id"`
-	Name        string         `json:"name"`
-	Description pgtype.Text    `json:"description"`
-	ServingSize pgtype.Numeric `json:"serving_size"`
-	ServingUnit string         `json:"serving_unit"`
-	Calories    float64        `json:"calories"`
-	Protein     float64        `json:"protein"`
-	Fat         float64        `json:"fat"`
-	Carbs       float64        `json:"carbs"`
-}
-
-func (q *Queries) ListFoods(ctx context.Context, arg ListFoodsParams) ([]ListFoodsRow, error) {
-	rows, err := q.db.Query(ctx, listFoods, arg.Limit, arg.Offset, arg.Name)
+func (q *Queries) GetFoodByID(ctx context.Context, id int64) ([]GetFoodByIDRow, error) {
+	rows, err := q.db.Query(ctx, getFoodByID, id)
 	if err != nil {
 		return nil, err
 	}
 	defer rows.Close()
-	var items []ListFoodsRow
+	var items []GetFoodByIDRow
 	for rows.Next() {
-		var i ListFoodsRow
+		var i GetFoodByIDRow
 		if err := rows.Scan(
 			&i.ID,
 			&i.Name,
 			&i.Description,
 			&i.ServingSize,
 			&i.ServingUnit,
-			&i.Calories,
-			&i.Protein,
-			&i.Fat,
-			&i.Carbs,
+			&i.Amount,
+			&i.NutrientID,
+			&i.NutrientName,
+			&i.Unit,
+			&i.CreatedAt,
+			&i.UpdatedAt,
 		); err != nil {
 			return nil, err
 		}
@@ -137,4 +148,168 @@ func (q *Queries) ListFoods(ctx context.Context, arg ListFoodsParams) ([]ListFoo
 		return nil, err
 	}
 	return items, nil
+}
+
+const getNutrientsByFoodIDs = `-- name: GetNutrientsByFoodIDs :many
+SELECT fn.food_id, n.id, n.name, n.unit, fn.amount
+FROM food_nutrients fn
+JOIN nutrients n ON fn.nutrient_id = n.id
+WHERE fn.food_id = ANY($1::bigint[])
+`
+
+type GetNutrientsByFoodIDsRow struct {
+	FoodID int64          `json:"food_id"`
+	ID     int64          `json:"id"`
+	Name   string         `json:"name"`
+	Unit   string         `json:"unit"`
+	Amount pgtype.Numeric `json:"amount"`
+}
+
+func (q *Queries) GetNutrientsByFoodIDs(ctx context.Context, dollar_1 []int64) ([]GetNutrientsByFoodIDsRow, error) {
+	rows, err := q.db.Query(ctx, getNutrientsByFoodIDs, dollar_1)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetNutrientsByFoodIDsRow
+	for rows.Next() {
+		var i GetNutrientsByFoodIDsRow
+		if err := rows.Scan(
+			&i.FoodID,
+			&i.ID,
+			&i.Name,
+			&i.Unit,
+			&i.Amount,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const getPaginatedFoods = `-- name: GetPaginatedFoods :many
+SELECT id, name, description, serving_size, serving_unit
+FROM foods
+WHERE deleted_at IS NULL
+LIMIT $1 OFFSET $2
+`
+
+type GetPaginatedFoodsParams struct {
+	Limit  int32 `json:"limit"`
+	Offset int32 `json:"offset"`
+}
+
+type GetPaginatedFoodsRow struct {
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Description pgtype.Text    `json:"description"`
+	ServingSize pgtype.Numeric `json:"serving_size"`
+	ServingUnit string         `json:"serving_unit"`
+}
+
+func (q *Queries) GetPaginatedFoods(ctx context.Context, arg GetPaginatedFoodsParams) ([]GetPaginatedFoodsRow, error) {
+	rows, err := q.db.Query(ctx, getPaginatedFoods, arg.Limit, arg.Offset)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []GetPaginatedFoodsRow
+	for rows.Next() {
+		var i GetPaginatedFoodsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ServingSize,
+			&i.ServingUnit,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const searchFoods = `-- name: SearchFoods :many
+SELECT f.id, f.name, f.description, f.serving_size, f.serving_unit
+FROM foods f
+WHERE f.deleted_at IS NULL
+  AND ($3::text IS NULL OR f.name ILIKE '%' || $3::text || '%')
+ORDER BY f.name ASC
+LIMIT $1 OFFSET $2
+`
+
+type SearchFoodsParams struct {
+	Limit  int32       `json:"limit"`
+	Offset int32       `json:"offset"`
+	Query  pgtype.Text `json:"query"`
+}
+
+type SearchFoodsRow struct {
+	ID          int64          `json:"id"`
+	Name        string         `json:"name"`
+	Description pgtype.Text    `json:"description"`
+	ServingSize pgtype.Numeric `json:"serving_size"`
+	ServingUnit string         `json:"serving_unit"`
+}
+
+func (q *Queries) SearchFoods(ctx context.Context, arg SearchFoodsParams) ([]SearchFoodsRow, error) {
+	rows, err := q.db.Query(ctx, searchFoods, arg.Limit, arg.Offset, arg.Query)
+	if err != nil {
+		return nil, err
+	}
+	defer rows.Close()
+	var items []SearchFoodsRow
+	for rows.Next() {
+		var i SearchFoodsRow
+		if err := rows.Scan(
+			&i.ID,
+			&i.Name,
+			&i.Description,
+			&i.ServingSize,
+			&i.ServingUnit,
+		); err != nil {
+			return nil, err
+		}
+		items = append(items, i)
+	}
+	if err := rows.Err(); err != nil {
+		return nil, err
+	}
+	return items, nil
+}
+
+const updateFood = `-- name: UpdateFood :execrows
+UPDATE foods
+SET name = $1, description = $2, serving_size = $3, serving_unit = $4, updated_at = NOW()
+WHERE id = $5 AND deleted_at IS NULL
+`
+
+type UpdateFoodParams struct {
+	Name        string         `json:"name"`
+	Description pgtype.Text    `json:"description"`
+	ServingSize pgtype.Numeric `json:"serving_size"`
+	ServingUnit string         `json:"serving_unit"`
+	ID          int64          `json:"id"`
+}
+
+func (q *Queries) UpdateFood(ctx context.Context, arg UpdateFoodParams) (int64, error) {
+	result, err := q.db.Exec(ctx, updateFood,
+		arg.Name,
+		arg.Description,
+		arg.ServingSize,
+		arg.ServingUnit,
+		arg.ID,
+	)
+	if err != nil {
+		return 0, err
+	}
+	return result.RowsAffected(), nil
 }

@@ -69,6 +69,9 @@ services:
     restart: always
     environment:
       RABBITMQ_URL: "amqp://admin:secretpassword@rabbitmq:5672/"
+      BACKEND_WEBHOOK_URL: "http://backend:8080/scans/webhook"
+    env_file:
+      - ./worker-ai/.env
     depends_on:
       - rabbitmq
     networks:
