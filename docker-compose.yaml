@@ -14,7 +14,7 @@ services:
     networks:
       - nutritrack-network
   rabbitmq:
-    image: rabbitmq:4-management
+    image: rabbitmq:3-management
     container_name: rabbitmq
     restart: unless-stopped
     ports:

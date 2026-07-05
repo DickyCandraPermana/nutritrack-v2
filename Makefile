@@ -21,6 +21,14 @@ up:
 down:
 	docker-compose down
 
+.PHONY: infra-up
+infra-up:
+	docker-compose up -d db rabbitmq minio
+
+.PHONY: infra-down
+infra-down:
+	docker-compose stop db rabbitmq minio
+
 .PHONY: logs
 logs:
 	docker-compose logs -f
@@ -103,9 +111,9 @@ frontend-build:
 .PHONY: worker-install
 worker-install:
 	@cd worker-ai; \
-	venv\Scripts\pip install -r requirements.txt
+	venv/Scripts/pip install -r requirements.txt
 
 .PHONY: worker-dev
 worker-dev:
 	@cd worker-ai; \
-	venv\Scripts\celery -A app.core.celery_app worker --loglevel=info --pool=solo
+	venv/Scripts/celery -A app.core.celery_app worker --loglevel=info --pool=solo
