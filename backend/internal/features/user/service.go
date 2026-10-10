@@ -4,6 +4,7 @@ import (
 	"context"
 
 	"github.com/jackc/pgx/v5/pgtype"
+	"golang.org/x/crypto/bcrypt"
 	"nutritrack.com/backend/internal/domain"
 	"nutritrack.com/backend/internal/infrastructure/database/sqlc"
 )
@@ -48,11 +49,11 @@ func (s *userService) UpdateAvatar(ctx context.Context, userID int64, avatarURL 
 }
 
 func (s *userService) UpdatePassword(ctx context.Context, userID int64, input domain.UpdatePasswordInput) error {
-	// Di sini harusnya ada logic bcrypt dan validasi OldPassword
-	// Untuk sekarang langsung bypass untuk mengupdate
-	// TODO: implement bcrypt
-	newHash := []byte(input.NewPassword) // Mock hashing
-	_, err := s.queries.UpdateUserPassword(ctx, sqlc.UpdateUserPasswordParams{
+	newHash, err := bcrypt.GenerateFromPassword([]byte(input.NewPassword), bcrypt.DefaultCost)
+	if err != nil {
+		return err
+	}
+	_, err = s.queries.UpdateUserPassword(ctx, sqlc.UpdateUserPasswordParams{
 		ID:       userID,
 		Password: newHash,
 	})
