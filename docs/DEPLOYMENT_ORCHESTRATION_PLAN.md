@@ -3,7 +3,8 @@
 **Date:** 2026-11-08  
 **Target:** `DickyCandraPermana/nutritrack-v2`  
 **Infrastructure Strategy:** Hybrid Zero-Cost Cloud Mesh (Azure Student VM + Tailscale + Cloudflare Tunnel)  
-**Status:** Approved & Ready for Deployment  
+**Status:** Deployed & Live in Production (Verified 2026-11-08)  
+**Live URL:** [https://nutritrack.thearinazs.my.id](https://nutritrack.thearinazs.my.id)  
 
 ---
 
