@@ -28,7 +28,7 @@ services:
     networks:
       - nutritrack-network
   minio:
-    image: minio/minio
+    image: cgr.dev/chainguard/minio:latest
     ports:
       - "9000:9000"
       - "9001:9001"
