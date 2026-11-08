@@ -1,99 +1,139 @@
 ---
-version: alpha
-name: Clinical Precision
-description: High-performance clinical nutrition tracking and medical-grade dietary command console.
+name: Tactical Precision Console
+description: Mission-critical dietary operations console inspired by Bloomberg terminals, defense telemetry, and Linear.
 colors:
-  primary: "#10b981"
-  primary-container: "#00422b"
-  inverse-primary: "#4edea3"
-  secondary: "#34d399"
-  tertiary: "#f43f5e"
-  neutral: "#0c131f"
-  surface: "#111c2d"
-  surface-card: "#162238"
-  surface-border: "#23334d"
-  text-primary: "#f8fafc"
-  text-muted: "#94a3b8"
+  surface: '#0e1320'
+  surface-dim: '#0e1320'
+  surface-bright: '#343948'
+  surface-container-lowest: '#080d1a'
+  surface-container-low: '#0c1322'
+  surface-container: '#111a2e'
+  surface-container-high: '#16223b'
+  surface-container-highest: '#303443'
+  on-surface: '#dee2f5'
+  on-surface-variant: '#bbcabf'
+  inverse-surface: '#dee2f5'
+  inverse-on-surface: '#2b303e'
+  outline: '#86948a'
+  outline-variant: '#3c4a42'
+  surface-tint: '#4edea3'
+  primary: '#10b981'
+  on-primary: '#080d1a'
+  primary-container: '#10b981'
+  on-primary-container: '#00422b'
+  inverse-primary: '#006c49'
+  secondary: '#0ea5e9'
+  on-secondary: '#00344d'
+  secondary-container: '#00a2e6'
+  on-secondary-container: '#00344e'
+  tertiary: '#f59e0b'
+  on-tertiary: '#472a00'
+  tertiary-container: '#e29100'
+  on-tertiary-container: '#523200'
+  error: '#f43f5e'
+  on-error: '#690005'
+  error-container: '#93000a'
+  on-error-container: '#ffdad6'
+  background: '#080d1a'
+  on-background: '#dee2f5'
+  surface-variant: '#303443'
 typography:
+  headline-xl:
+    fontFamily: Space Grotesk
+    fontSize: 32px
+    fontWeight: '600'
+    lineHeight: 38px
+    letterSpacing: "-0.03em"
   headline-lg:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 2rem
-    fontWeight: 700
-    lineHeight: 1.2
+    fontFamily: Space Grotesk
+    fontSize: 22px
+    fontWeight: '600'
+    lineHeight: 28px
     letterSpacing: "-0.02em"
   headline-md:
-    fontFamily: Plus Jakarta Sans
-    fontSize: 1.5rem
-    fontWeight: 600
-    lineHeight: 1.3
+    fontFamily: Space Grotesk
+    fontSize: 18px
+    fontWeight: '500'
+    lineHeight: 24px
     letterSpacing: "-0.01em"
+  body-lg:
+    fontFamily: Geist
+    fontSize: 15px
+    fontWeight: '400'
+    lineHeight: 22px
   body-md:
-    fontFamily: Inter
-    fontSize: 1rem
-    fontWeight: 400
-    lineHeight: 1.5
-  display-metric:
-    fontFamily: Inter
-    fontSize: 2.25rem
-    fontWeight: 700
-    lineHeight: 1.1
-    letterSpacing: "-0.03em"
-  label-sm:
-    fontFamily: Inter
-    fontSize: 0.75rem
-    fontWeight: 600
-    letterSpacing: "0.05em"
+    fontFamily: Geist
+    fontSize: 13px
+    fontWeight: '400'
+    lineHeight: 18px
+  body-sm:
+    fontFamily: Geist
+    fontSize: 12px
+    fontWeight: '400'
+    lineHeight: 16px
+  label-mono-lg:
+    fontFamily: JetBrains Mono
+    fontSize: 14px
+    fontWeight: '500'
+    letterSpacing: "-0.01em"
+    lineHeight: 18px
+  label-mono-md:
+    fontFamily: JetBrains Mono
+    fontSize: 12px
+    fontWeight: '500'
+    letterSpacing: "0.02em"
+    lineHeight: 16px
+  label-mono-sm:
+    fontFamily: JetBrains Mono
+    fontSize: 11px
+    fontWeight: '500'
+    letterSpacing: "0.04em"
+    lineHeight: 14px
+  label-mono-xs:
+    fontFamily: JetBrains Mono
+    fontSize: 10px
+    fontWeight: '600'
+    letterSpacing: "0.06em"
+    lineHeight: 12px
 rounded:
-  sm: 4px
-  md: 8px
-  lg: 12px
-  xl: 16px
+  sm: 0.125rem
+  DEFAULT: 0.25rem
+  md: 0.375rem
+  lg: 0.5rem
+  xl: 0.75rem
   full: 9999px
 spacing:
-  xs: 4px
-  sm: 8px
-  md: 16px
-  lg: 24px
-  xl: 32px
-components:
-  button-primary:
-    backgroundColor: "{colors.primary}"
-    textColor: "#002113"
-    rounded: "{rounded.md}"
-    padding: 12px
-  button-primary-hover:
-    backgroundColor: "{colors.inverse-primary}"
-  card-bento:
-    backgroundColor: "{colors.surface-card}"
-    textColor: "{colors.text-primary}"
-    rounded: "{rounded.lg}"
-    padding: 20px
+  gutter: 0.5rem
+  gutter-mobile: 0.25rem
+  margin: 1rem
+  margin-mobile: 0.5rem
+  space-xs: 0.125rem
+  space-sm: 0.25rem
+  space-md: 0.5rem
+  space-lg: 0.75rem
+  space-xl: 1rem
 ---
 
 ## Overview
 
-Clinical Precision is an Operate & Command console for nutrition telemetry, macro tracking, and OCR food intake analysis. It replaces marketing fluff and unearned aesthetic slop (floating blur orbs, oversized decorative heroes, generic stock testimonials) with high-density, tactile, and verifiable data visualization.
+Tactical Precision Console is an Operate & Monitor telemetry workspace engineered for high-throughput metabolic data tracking, optical food intake OCR, and dietary telemetry verification.
 
 ## Colors
 
-- **Primary (#10B981 / Emerald):** Signals optimal metabolic balance, active logging, and completed caloric targets.
-- **Secondary (#34D399 / Mint):** Micro-nutrients, vitamins, and secondary nutritional metrics.
-- **Tertiary (#F43F5E / Crimson Rose):** Metabolic alerts, sodium or sugar limits, and caloric deficit/surplus warnings.
-- **Surface (#111C2D & #162238):** Deep clinical navy slate providing high contrast for continuous daily monitoring without visual fatigue.
-- **Border (#23334D):** Hairline precision grid separation.
+Strict semantic color signaling:
+- **Primary (#10B981 / Clinical Emerald):** Nominal runtime states, protein intake, verified parameters.
+- **Secondary (#0EA5E9 / Tactical Cyan):** Carbohydrates, telemetry paths, active selection brackets.
+- **Tertiary (#F59E0B / Warning Amber):** Lipids/fats, threshold warnings, escalating resource limits.
+- **Error (#F43F5E / Alert Crimson):** Overages, caloric spikes, critical interventions.
+- **Canvas Base (#080D1A) & Surface Level 1 (#0C1322):** Deep obsidian light-absorbent chassis with 1px hairline wireframes (`rgba(255, 255, 255, 0.08)`).
 
 ## Typography
 
-- **Plus Jakarta Sans:** Expressive, clean geometric sans-serif for command headings and metric cards.
-- **Inter:** Technical workhorse with Tabular Numbers (`tnum`) applied across all calories, grams, percentages, and timestamps.
+- **Space Grotesk:** Engineered geometric grotesque for panel headers and cluster states.
+- **Geist:** Clean neutral sans-serif for high-density control copy.
+- **JetBrains Mono:** Tabular fixed-pitch numbers for all calorie counters, timestamps, gram weights, and status codes.
 
 ## Layout
 
-- **12-Column Responsive Bento Grid:** Structured modules for quick scanning.
-- **Action-First Hierarchy:** Search foods (`/`), scan label, or log meal reachable in <1 click.
-- **No Decorative Slop:** Every pixel represents actual state or direct user capability.
-
-## Elevation & Depth
-
-- Hairline 1px borders (`#23334d`) with subtle ambient elevation.
-- Active card hover shifts border highlight to Emerald (`#10b981/40`).
+Edge-to-edge docking model with an asymmetric 12-column layout (65% Intake Ledger / 35% Computer Vision Viewfinder HUD).
+Zero decorative blur orbs, zero stock photos, zero AI slop.
