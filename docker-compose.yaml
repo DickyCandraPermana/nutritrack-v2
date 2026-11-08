@@ -82,7 +82,7 @@ services:
       context: ./frontend
     restart: always
     ports:
-      - "80:80"
+      - "8085:80"
     depends_on:
       - backend
     networks:
