@@ -1,112 +1,75 @@
 @import "tailwindcss";
 @import "tw-animate-css";
-@import "@fontsource-variable/geist";
-@import "@fontsource/space-grotesk/500.css";
-@import "@fontsource/space-grotesk/600.css";
-@import "@fontsource/space-grotesk/700.css";
-@import "@fontsource/jetbrains-mono/400.css";
-@import "@fontsource/jetbrains-mono/500.css";
-@import "@fontsource/jetbrains-mono/600.css";
+@import "@fontsource/plus-jakarta-sans/400.css";
+@import "@fontsource/plus-jakarta-sans/500.css";
+@import "@fontsource/plus-jakarta-sans/600.css";
+@import "@fontsource/plus-jakarta-sans/700.css";
 
 @theme {
-  --color-primary: #10b981;
-  --color-primary-container: #00422b;
-  --color-primary-fixed: #6ffbbe;
-  --color-secondary: #0ea5e9;
-  --color-secondary-container: #00344e;
-  --color-tertiary: #f59e0b;
-  --color-error: #f43f5e;
-  --color-canvas: #080d1a;
-  --color-surface-1: #0c1322;
-  --color-surface-2: #111a2e;
-  --color-surface-3: #16223b;
-  --color-border-hairline: rgba(255, 255, 255, 0.08);
-  --color-border-active: rgba(255, 255, 255, 0.22);
-  --color-text-main: #f8fafc;
-  --color-text-dim: #94a3b8;
-  --color-text-micro: #475569;
+  --color-primary: #15803d;
+  --color-primary-dark: #166534;
+  --color-primary-light: #22c55e;
+  --color-primary-container: #dcfce7;
+  --color-secondary: #65a30d;
+  --color-secondary-container: #ecfccb;
+  --color-tertiary: #d97706;
+  --color-tertiary-container: #fef3c7;
+  --color-canvas: #f8faf7;
+  --color-card: #fcfdf9;
+  --color-card-elevated: #ffffff;
+  --color-card-border: #e5e7eb;
+  --color-card-border-green: #bbf7d0;
+  --color-text-main: #1f2937;
+  --color-text-dim: #4b5563;
+  --color-text-muted: #6b7280;
 
-  --font-sans: 'Geist Variable', -apple-system, sans-serif;
-  --font-heading: 'Space Grotesk', sans-serif;
-  --font-mono: 'JetBrains Mono', monospace;
+  --font-sans: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  --font-heading: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
 }
 
 body {
-  background-color: #080d1a;
-  color: #f8fafc;
-  font-family: 'Geist Variable', -apple-system, sans-serif;
+  background-color: #f8faf7;
+  color: #1f2937;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
   margin: 0;
   min-height: 100vh;
   -webkit-font-smoothing: antialiased;
 }
 
 h1, h2, h3, h4, .font-heading {
-  font-family: 'Space Grotesk', sans-serif;
-  letter-spacing: -0.02em;
+  font-family: 'Plus Jakarta Sans', system-ui, -apple-system, sans-serif;
+  letter-spacing: -0.015em;
 }
 
-.font-mono, .tnum, .tabular-numbers {
-  font-family: 'JetBrains Mono', monospace;
+.tnum, .tabular-numbers {
   font-variant-numeric: tabular-nums;
 }
 
-/* Hairline Grid and Tactical Emittance */
-.hairline-grid {
-  background-size: 24px 24px;
-  background-image: 
-    linear-gradient(to right, rgba(60, 74, 66, 0.15) 1px, transparent 1px),
-    linear-gradient(to bottom, rgba(60, 74, 66, 0.15) 1px, transparent 1px);
+/* Serene Vitality Card elevation & gentle chlorophyll glow */
+.card-zen {
+  background-color: #fcfdf9;
+  border: 1px solid #e5e7eb;
+  box-shadow: 0 4px 20px -2px rgba(22, 163, 74, 0.04), 0 2px 6px -1px rgba(31, 41, 55, 0.02);
+  transition: box-shadow 0.2s ease, border-color 0.2s ease, transform 0.15s ease;
 }
 
-.hairline-border {
-  border: 1px solid rgba(255, 255, 255, 0.08);
+.card-zen:hover {
+  border-color: #bbf7d0;
+  box-shadow: 0 10px 28px -4px rgba(22, 163, 74, 0.08), 0 4px 10px -2px rgba(31, 41, 55, 0.03);
 }
 
-.hairline-border-active {
-  border: 1px solid rgba(16, 185, 129, 0.35);
-  box-shadow: 0 0 0 1px #10b981, 0 0 8px rgba(16, 185, 129, 0.2);
-}
-
-/* Laser sweep animation for Optical Scanner HUD */
-@keyframes laserSweep {
-  0% { top: 4%; opacity: 0.1; }
-  15% { opacity: 0.95; }
-  85% { opacity: 0.95; }
-  100% { top: 94%; opacity: 0.1; }
-}
-
-.laser-beam {
-  position: absolute;
-  left: 0;
-  right: 0;
-  height: 2px;
-  background: #10b981;
-  box-shadow: 0 0 12px #10b981, 0 0 24px #4edea3;
-  animation: laserSweep 2.8s cubic-bezier(0.4, 0, 0.2, 1) infinite alternate;
-}
-
-.laser-trail {
-  position: absolute;
-  left: 0;
-  right: 0;
-  top: -24px;
-  height: 24px;
-  background: linear-gradient(to top, rgba(16, 185, 129, 0.25), transparent);
-  pointer-events: none;
-}
-
-/* Scrollbars */
+/* Minimalist Natural Scrollbars */
 ::-webkit-scrollbar {
-  width: 4px;
-  height: 4px;
+  width: 6px;
+  height: 6px;
 }
 ::-webkit-scrollbar-track {
-  background: #080d1a;
+  background: #f8faf7;
 }
 ::-webkit-scrollbar-thumb {
-  background: #1e293b;
-  border-radius: 2px;
+  background: #d1d5db;
+  border-radius: 9999px;
 }
 ::-webkit-scrollbar-thumb:hover {
-  background: #10b981;
+  background: #15803d;
 }

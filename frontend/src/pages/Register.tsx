@@ -1,6 +1,6 @@
 import { useState } from 'react';
 import { Link, useNavigate } from 'react-router-dom';
-import { Mail, Lock, User, ArrowRight, Loader2, Activity } from 'lucide-react';
+import { Mail, Lock, User, ArrowRight, Loader2, Leaf } from 'lucide-react';
 import { apiClient } from '../lib/api';
 
 export default function Register() {
@@ -27,76 +27,76 @@ export default function Register() {
   };
 
   return (
-    <div className="min-h-screen bg-[#0b111e] flex flex-col items-center justify-center p-4 antialiased">
+    <div className="min-h-screen bg-[#f8faf7] text-[#1f2937] flex flex-col items-center justify-center p-4 antialiased selection:bg-[#dcfce7] selection:text-[#15803d]">
       
       <div className="w-full max-w-md space-y-6">
         
-        {/* Console Header */}
+        {/* Brand Header */}
         <div className="text-center space-y-2">
           <Link to="/" className="inline-flex items-center gap-2.5 mb-2 group">
-            <div className="w-8 h-8 rounded-lg bg-emerald-500/15 border border-emerald-500/30 flex items-center justify-center text-emerald-400 group-hover:bg-emerald-500/25 transition-all">
-              <Activity className="w-4 h-4" />
+            <div className="w-9 h-9 rounded-xl bg-[#dcfce7] text-[#15803d] flex items-center justify-center group-hover:scale-105 transition-transform">
+              <Leaf className="w-5 h-5 fill-[#15803d]" />
             </div>
-            <span className="font-heading font-bold text-xl text-white tracking-tight">
+            <span className="font-heading font-bold text-xl text-[#1f2937] tracking-tight">
               NutriTrack
             </span>
           </Link>
-          <h1 className="font-heading font-bold text-2xl text-white tracking-tight">
-            Operator Enrollment
+          <h1 className="font-heading font-bold text-2xl text-[#1f2937] tracking-tight">
+            Create Your Account
           </h1>
-          <p className="text-xs font-mono text-slate-400">
-            Create an authenticated telemetry identity
+          <p className="text-xs text-[#6b7280]">
+            Begin your mindful nutrition journey today
           </p>
         </div>
 
-        {/* Clinical Form Card */}
-        <form onSubmit={handleSubmit} className="clinical-card p-6 sm:p-8 space-y-5">
+        {/* Serene Form Card */}
+        <form onSubmit={handleSubmit} className="card-zen rounded-3xl p-6 sm:p-8 space-y-5 bg-[#fcfdf9]">
           {error && (
-            <div className="p-3 rounded-lg bg-rose-500/10 border border-rose-500/25 text-rose-300 text-xs font-mono">
+            <div className="p-3 rounded-2xl bg-rose-50 border border-rose-200 text-rose-700 text-xs">
               {error}
             </div>
           )}
 
           <div className="space-y-1.5">
-            <label className="text-xs font-mono text-slate-300 font-medium">Operator Name</label>
+            <label className="text-xs text-[#4b5563] font-medium">Your Name / Nickname</label>
             <div className="relative">
-              <User className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
               <input 
                 type="text" 
                 value={username}
                 onChange={(e) => setUsername(e.target.value)}
                 required
-                className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg py-2 pl-9 pr-3 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
-                placeholder="Dicky Candra"
+                className="w-full bg-white border border-[#e5e7eb] rounded-xl py-2.5 pl-10 pr-3 text-xs text-[#1f2937] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#15803d] focus:ring-2 focus:ring-[#15803d]/10 transition-all shadow-sm"
+                placeholder="Elena"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-mono text-slate-300 font-medium">Email Address</label>
+            <label className="text-xs text-[#4b5563] font-medium">Email Address</label>
             <div className="relative">
-              <Mail className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Mail className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
               <input 
                 type="email" 
                 value={email}
                 onChange={(e) => setEmail(e.target.value)}
                 required
-                className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg py-2 pl-9 pr-3 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
-                placeholder="operator@thearinazs.my.id"
+                className="w-full bg-white border border-[#e5e7eb] rounded-xl py-2.5 pl-10 pr-3 text-xs text-[#1f2937] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#15803d] focus:ring-2 focus:ring-[#15803d]/10 transition-all shadow-sm"
+                placeholder="elena@example.com"
               />
             </div>
           </div>
 
           <div className="space-y-1.5">
-            <label className="text-xs font-mono text-slate-300 font-medium">Session Key / Password</label>
+            <label className="text-xs text-[#4b5563] font-medium">Password</label>
             <div className="relative">
-              <Lock className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-500" />
+              <Lock className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[#9ca3af]" />
               <input 
                 type="password" 
                 value={password}
                 onChange={(e) => setPassword(e.target.value)}
                 required
-                className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg py-2 pl-9 pr-3 text-xs font-mono text-white placeholder:text-slate-500 focus:outline-none focus:border-emerald-500 transition-colors"
+                className="w-full bg-white border border-[#e5e7eb] rounded-xl py-2.5 pl-10 pr-3 text-xs text-[#1f2937] placeholder:text-[#9ca3af] focus:outline-none focus:border-[#15803d] focus:ring-2 focus:ring-[#15803d]/10 transition-all shadow-sm"
                 placeholder="••••••••••••"
               />
             </div>
@@ -105,21 +105,21 @@ export default function Register() {
           <button 
             type="submit"
             disabled={loading}
-            className="w-full bg-emerald-500 hover:bg-emerald-400 text-[#002113] font-heading font-bold text-sm py-2.5 rounded-lg flex items-center justify-center gap-2 transition-colors shadow-sm disabled:opacity-50 mt-2"
+            className="w-full bg-[#15803d] hover:bg-[#166534] text-white font-semibold text-xs py-3 rounded-full flex items-center justify-center gap-2 transition-all shadow-sm active:scale-[0.99] disabled:opacity-50 mt-2"
           >
             {loading ? <Loader2 className="w-4 h-4 animate-spin" /> : (
               <>
-                <span>Enroll Identity</span>
+                <span>Create Free Account</span>
                 <ArrowRight className="w-4 h-4" />
               </>
             )}
           </button>
         </form>
 
-        <p className="text-center text-xs font-mono text-slate-500">
-          Already registered?{' '}
-          <Link to="/login" className="text-emerald-400 hover:underline">
-            Authenticate session
+        <p className="text-center text-xs text-[#6b7280]">
+          Already have an account?{' '}
+          <Link to="/login" className="text-[#15803d] font-semibold hover:underline">
+            Sign in
           </Link>
         </p>
 
