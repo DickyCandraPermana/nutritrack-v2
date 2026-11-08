@@ -1,7 +1,7 @@
 import { useState, useEffect } from 'react';
-import { User, Settings, Bell, Key, Loader2 } from 'lucide-react';
+import { User, Settings, Bell, Key, Loader2, Save, Activity } from 'lucide-react';
 import useAuthStore from '../store/authStore';
-import { fetchApi } from '../lib/api';
+import { apiClient } from '../lib/api';
 import { toast } from 'sonner';
 
 export default function Profile() {
@@ -10,7 +10,6 @@ export default function Profile() {
   const [loading, setLoading] = useState(true);
   const [saving, setSaving] = useState(false);
 
-  // Form state
   const [formData, setFormData] = useState({
     username: '',
     email: '',
@@ -22,19 +21,15 @@ export default function Profile() {
   useEffect(() => {
     const loadProfile = async () => {
       try {
-        const res = await fetchApi('/users/profile');
-        if (res.ok) {
-          const data = await res.json();
-          setProfile(data);
-          // If the backend doesn't return full profile yet, we fallback to authUser
-          setFormData({
-            username: data.user?.username || authUser?.username || '',
-            email: data.user?.email || authUser?.email || '',
-            weight: data.user?.weight || '70',
-            height: data.user?.height || '175',
-            age: data.user?.age || '25',
-          });
-        }
+        const data = await apiClient.get<any>('/users/profile');
+        setProfile(data);
+        setFormData({
+          username: data.user?.username || authUser?.username || '',
+          email: data.user?.email || authUser?.email || '',
+          weight: data.user?.weight || '70',
+          height: data.user?.height || '175',
+          age: data.user?.age || '25',
+        });
       } catch (err) {
         console.error('Failed to load profile', err);
       } finally {
@@ -47,12 +42,8 @@ export default function Profile() {
   const handleSave = async () => {
     setSaving(true);
     try {
-      const res = await fetchApi('/users/profile', {
-        method: 'PUT',
-        body: JSON.stringify(formData),
-      });
-      if (!res.ok) throw new Error('Failed to update profile');
-      toast.success('Profile updated successfully');
+      await apiClient.put('/users/profile', formData);
+      toast.success('Clinical profile updated.');
     } catch (err: any) {
       toast.error(err.message || 'An error occurred');
     } finally {
@@ -62,123 +53,133 @@ export default function Profile() {
 
   if (loading) {
     return (
-      <div className="flex items-center justify-center h-full min-h-[400px]">
-        <Loader2 className="w-8 h-8 animate-spin text-emerald-500" />
+      <div className="flex flex-col items-center justify-center min-h-[350px] space-y-3 font-mono text-xs text-slate-400">
+        <Loader2 className="w-6 h-6 animate-spin text-emerald-400" />
+        <span>LOADING BIOMETRIC PROFILE...</span>
       </div>
     );
   }
 
   return (
-    <div className="max-w-4xl mx-auto space-y-6 animate-in fade-in slide-in-from-bottom-4 duration-700">
-      <h2 className="text-3xl font-semibold text-slate-100 mb-8">Profile Settings</h2>
+    <div className="max-w-4xl mx-auto space-y-6 antialiased">
+      <div className="pb-4 border-b border-[#1f2e47]">
+        <div className="flex items-center gap-2 text-xs font-mono text-emerald-400 mb-1">
+          <Activity className="w-3.5 h-3.5" />
+          <span>BIOMETRIC TELEMETRY & AUTHENTICATION</span>
+        </div>
+        <h1 className="font-heading text-2xl font-bold text-white tracking-tight">
+          Operator Profile & Body Metrics
+        </h1>
+      </div>
       
-      <div className="grid grid-cols-1 md:grid-cols-3 gap-8">
-        {/* Sidebar */}
-        <div className="space-y-2">
-          <button className="w-full flex items-center gap-3 p-4 rounded-2xl bg-emerald-500/10 text-emerald-400 font-medium border border-emerald-500/20">
-            <User className="w-5 h-5" />
-            General Info
+      <div className="grid grid-cols-1 md:grid-cols-3 gap-6">
+        
+        {/* Navigation Tabs */}
+        <div className="space-y-1.5 font-mono text-xs">
+          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg bg-emerald-500/10 text-emerald-300 font-semibold border border-emerald-500/25">
+            <User className="w-4 h-4" />
+            <span>Biometrics & Identity</span>
           </button>
-          <button className="w-full flex items-center gap-3 p-4 rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors">
-            <Settings className="w-5 h-5" />
-            Preferences
+          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-[#141f33] hover:text-slate-200 transition-colors">
+            <Settings className="w-4 h-4" />
+            <span>Metabolic Guardrails</span>
           </button>
-          <button className="w-full flex items-center gap-3 p-4 rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors">
-            <Bell className="w-5 h-5" />
-            Notifications
+          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-[#141f33] hover:text-slate-200 transition-colors">
+            <Bell className="w-4 h-4" />
+            <span>Telemetry Alerts</span>
           </button>
-          <button className="w-full flex items-center gap-3 p-4 rounded-2xl text-slate-400 hover:bg-slate-800/50 hover:text-slate-200 transition-colors">
-            <Key className="w-5 h-5" />
-            Security & 2FA
+          <button className="w-full flex items-center gap-2.5 px-3 py-2.5 rounded-lg text-slate-400 hover:bg-[#141f33] hover:text-slate-200 transition-colors">
+            <Key className="w-4 h-4" />
+            <span>Security & Cryptography</span>
           </button>
         </div>
 
-        {/* Content */}
-        <div className="md:col-span-2 glass-card rounded-3xl p-8 space-y-8">
-          <div className="flex items-center gap-6">
-            <div className="w-24 h-24 rounded-full bg-slate-800 flex items-center justify-center text-4xl border-2 border-emerald-500/30 overflow-hidden">
+        {/* Profile Content */}
+        <div className="md:col-span-2 clinical-card p-6 space-y-6">
+          <div className="flex items-center gap-4">
+            <div className="w-16 h-16 rounded-lg bg-[#0e1626] border border-[#23334d] flex items-center justify-center text-2xl overflow-hidden font-mono font-bold text-emerald-400">
               {profile?.user?.avatar ? (
                 <img src={profile.user.avatar} alt="Avatar" className="w-full h-full object-cover" />
               ) : (
-                "🦊"
+                formData.username?.charAt(0) || 'U'
               )}
             </div>
             <div>
-              <h3 className="text-2xl font-semibold text-slate-100">{formData.username || 'User'}</h3>
-              <p className="text-slate-400 mb-3">{formData.email}</p>
-              <button className="px-4 py-2 rounded-xl bg-slate-800 text-sm font-medium text-slate-200 hover:bg-slate-700 transition-colors border border-slate-700">
-                Change Avatar
-              </button>
+              <h2 className="font-heading font-bold text-lg text-white capitalize leading-tight">
+                {formData.username || 'Operator'}
+              </h2>
+              <p className="text-xs font-mono text-slate-400">{formData.email}</p>
+              <span className="inline-block mt-1 text-[10px] font-mono px-2 py-0.5 rounded bg-emerald-500/10 text-emerald-400 border border-emerald-500/20">
+                ACTIVE TELEMETRY SESSION
+              </span>
             </div>
           </div>
 
-          <hr className="border-slate-800" />
-
-          <div className="space-y-5">
-            <h4 className="text-lg font-medium text-slate-200 mb-4">Personal Details</h4>
-            
+          <div className="border-t border-[#1f2e47] pt-5 space-y-4 font-mono text-xs">
             <div className="grid grid-cols-2 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Username</label>
+              <div className="space-y-1.5">
+                <label className="text-slate-400">Username</label>
                 <input 
                   type="text" 
                   value={formData.username}
                   onChange={(e) => setFormData({...formData, username: e.target.value})}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" 
+                  className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500" 
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Email</label>
+              <div className="space-y-1.5">
+                <label className="text-slate-400">Email (Immutable)</label>
                 <input 
                   type="text" 
                   value={formData.email}
                   disabled
-                  className="w-full bg-slate-800/50 border border-slate-700 rounded-xl p-3 text-slate-500 cursor-not-allowed" 
+                  className="w-full bg-[#0e1626] border border-[#1f2e47] rounded-lg p-2.5 text-slate-500 cursor-not-allowed" 
                 />
               </div>
             </div>
 
             <div className="grid grid-cols-3 gap-4">
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Age</label>
+              <div className="space-y-1.5">
+                <label className="text-slate-400">Age</label>
                 <input 
                   type="number" 
                   value={formData.age}
                   onChange={(e) => setFormData({...formData, age: e.target.value})}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" 
+                  className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500 tnum" 
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Weight (kg)</label>
+              <div className="space-y-1.5">
+                <label className="text-slate-400">Weight (kg)</label>
                 <input 
                   type="number" 
                   value={formData.weight}
                   onChange={(e) => setFormData({...formData, weight: e.target.value})}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" 
+                  className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500 tnum" 
                 />
               </div>
-              <div className="space-y-2">
-                <label className="text-sm font-medium text-slate-400">Height (cm)</label>
+              <div className="space-y-1.5">
+                <label className="text-slate-400">Height (cm)</label>
                 <input 
                   type="number" 
                   value={formData.height}
                   onChange={(e) => setFormData({...formData, height: e.target.value})}
-                  className="w-full bg-slate-900/50 border border-slate-700 rounded-xl p-3 text-slate-100 focus:outline-none focus:border-emerald-500 focus:ring-1 focus:ring-emerald-500" 
+                  className="w-full bg-[#0b111e] border border-[#1f2e47] rounded-lg p-2.5 text-white focus:outline-none focus:border-emerald-500 tnum" 
                 />
               </div>
             </div>
           </div>
 
-          <div className="flex justify-end pt-4">
+          <div className="flex justify-end pt-2 border-t border-[#1f2e47]">
             <button 
               onClick={handleSave}
               disabled={saving}
-              className="px-6 py-3 rounded-xl bg-emerald-500 hover:bg-emerald-400 text-slate-950 font-semibold transition-colors disabled:opacity-50 flex items-center gap-2"
+              className="px-4 py-2 rounded-lg bg-emerald-500 hover:bg-emerald-400 text-[#002113] font-heading font-semibold text-xs transition-colors disabled:opacity-50 flex items-center gap-2"
             >
-              {saving ? <Loader2 className="w-5 h-5 animate-spin" /> : 'Save Changes'}
+              {saving ? <Loader2 className="w-3.5 h-3.5 animate-spin" /> : <Save className="w-3.5 h-3.5" />}
+              <span>Save Biometrics</span>
             </button>
           </div>
         </div>
+
       </div>
     </div>
   );
