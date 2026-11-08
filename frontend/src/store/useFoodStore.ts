@@ -1,5 +1,5 @@
 import { create } from 'zustand';
-import { fetchApi } from '../lib/api';
+import { apiClient, ApiError } from '../lib/api';
 
 export interface Food {
   id: string;
@@ -11,9 +11,14 @@ export interface Food {
   imageUrl?: string;
 }
 
+interface FoodSearchResponse {
+  data?: Food[];
+}
+
 interface FoodState {
   foods: Food[];
   isLoading: boolean;
+  error: string | null;
   searchQuery: string;
   setSearchQuery: (query: string) => void;
   fetchFoods: () => Promise<void>;
@@ -22,27 +27,34 @@ interface FoodState {
 export const useFoodStore = create<FoodState>((set, get) => ({
   foods: [],
   isLoading: false,
+  error: null,
   searchQuery: '',
-  setSearchQuery: (query) => set({ searchQuery: query }),
+  setSearchQuery: (query: string) => set({ searchQuery: query }),
   fetchFoods: async () => {
-    set({ isLoading: true });
+    set({ isLoading: true, error: null });
     try {
-      // The backend uses /foods/search?q=
-      // If query is empty, maybe /foods/search (it should handle empty q)
       const url = `/foods/search?q=${encodeURIComponent(get().searchQuery)}`;
-        
-      const response = await fetchApi(url);
-      
-      if (!response.ok) {
-        throw new Error('Network response was not ok');
-      }
-      
-      const json = await response.json();
-      set({ foods: json.data || [], isLoading: false });
-      
-    } catch (error) {
+      const response = await apiClient.get<FoodSearchResponse>(url);
+
+      set({
+        foods: response.data ?? [],
+        isLoading: false,
+        error: null,
+      });
+    } catch (error: unknown) {
+      const errorMessage =
+        error instanceof ApiError
+          ? error.message
+          : error instanceof Error
+            ? error.message
+            : 'An unexpected error occurred while fetching foods';
+
       console.error('Failed to fetch foods', error);
-      set({ foods: [], isLoading: false });
+      set({
+        foods: [],
+        isLoading: false,
+        error: errorMessage,
+      });
     }
-  }
+  },
 }));
